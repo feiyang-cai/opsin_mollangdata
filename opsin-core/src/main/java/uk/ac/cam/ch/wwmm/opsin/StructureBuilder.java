@@ -41,6 +41,17 @@ class StructureBuilder {
 	 * @throws StructureBuildingException If the molecule won't build - there may be many reasons.
 	 */
 	Fragment buildFragment(Element molecule) throws StructureBuildingException {
+		return buildFragment(molecule, molecule);
+	}
+
+	/**	Builds a molecule as a Fragment based on ComponentProcessor output.
+	 * @param molecule The ComponentProcessor output.
+	 * @param outputMolecule The output parse to be processed independently.
+	 * @return A single Fragment - the built molecule.
+	 * @throws StructureBuildingException If the molecule won't build - there may be many reasons.
+	 */
+	Fragment buildFragment(Element molecule, Element outputMolecule) throws StructureBuildingException {
+		// Process molecule (parse)
 		List<Element> wordRules = molecule.getChildElements(WORDRULE_EL);
 
 		currentTopLevelWordRuleCount = wordRules.size();
@@ -84,6 +95,36 @@ class StructureBuilder {
 			}
 			uniFrag.setPolymerAttachmentPoints(polymerAttachmentPoints);
 		}
+		
+		// Process outputMolecule (outputParse) independently (same operations)
+		// Note: This processes outputParse but doesn't affect the returned Fragment
+		List<Element> outputWordRules = outputMolecule.getChildElements(WORDRULE_EL);
+
+		int outputTopLevelWordRuleCount = outputWordRules.size();
+		if (outputTopLevelWordRuleCount == 0) {
+			throw new StructureBuildingException("Output molecule contains no word rules!?");
+		}
+		
+		for (Element wordRule : outputWordRules) {
+			processWordRuleChildrenThenRule(wordRule);
+		}
+		
+		if (outputTopLevelWordRuleCount != outputWordRules.size()) {
+			outputWordRules = outputMolecule.getChildElements(WORDRULE_EL);//very rarely a word rule adds a top level word rule
+		}
+
+		List<Element> outputGroupElements = OpsinTools.getDescendantElementsWithTagName(outputMolecule, GROUP_EL);
+		processSpecialCases(outputGroupElements);
+		processOxidationNumbers(outputGroupElements);
+		// Note: We don't call convertSpareValenciesToDoubleBonds/checkValencies/makeHydrogensExplicit
+		// for outputParse as these modify the shared fragManager state
+		// The outputParse is primarily for XML generation, not fragment building
+		
+		manipulateStoichiometry(outputMolecule, outputWordRules);
+		
+		// Note: We don't process stereochemistry or radicals for outputParse
+		// as these would modify the shared fragment state
+		
 		return uniFrag;
 	}
 

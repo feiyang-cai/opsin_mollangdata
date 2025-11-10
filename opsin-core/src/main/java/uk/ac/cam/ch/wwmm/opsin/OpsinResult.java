@@ -21,6 +21,8 @@ public class OpsinResult {
 	private final String message;
 	private final String chemicalName;
 	private final List<OpsinWarning> warnings;
+	private final String parseXml;
+	private final String outputXml;
 
 	/**
 	 * Whether parsing the chemical name was successful, encountered problems or was unsuccessful.<br>
@@ -45,7 +47,7 @@ public class OpsinResult {
 		FAILURE
 	}
 	
-	OpsinResult(Fragment frag, OPSIN_RESULT_STATUS status, List<OpsinWarning> warnings, String chemicalName) {
+	OpsinResult(Fragment frag, OPSIN_RESULT_STATUS status, List<OpsinWarning> warnings, String chemicalName, String parseXml, String outputXml) {
 		this.structure = frag;
 		this.status = status;
 		StringBuilder sb = new StringBuilder();
@@ -61,14 +63,18 @@ public class OpsinResult {
 		this.message = sb.toString();
 		this.chemicalName = chemicalName;
 		this.warnings = warnings;
+		this.parseXml = parseXml;
+		this.outputXml = outputXml;
 	}
 
-	OpsinResult(Fragment frag, OPSIN_RESULT_STATUS status, String message, String chemicalName) {
+	OpsinResult(Fragment frag, OPSIN_RESULT_STATUS status, String message, String chemicalName, String parseXml, String outputXml) {
 		this.structure = frag;
 		this.status = status;
 		this.message = message;
 		this.chemicalName = chemicalName;
 		this.warnings = Collections.emptyList();
+		this.parseXml = parseXml;
+		this.outputXml = outputXml;
 	}
 
 	Fragment getStructure() {
@@ -227,6 +233,22 @@ public class OpsinResult {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Returns the parse XML that was used during the whole process for SMILES generation
+	 * @return String containing the parse XML, or null if parsing failed
+	 */
+	public String getParseXml() {
+		return parseXml;
+	}
+
+	/**
+	 * Returns the output XML which is similar to parseXml but can be edited during the process with custom entries
+	 * @return String containing the output XML, or null if parsing failed
+	 */
+	public String getOutputXml() {
+		return outputXml;
 	}
 
 }

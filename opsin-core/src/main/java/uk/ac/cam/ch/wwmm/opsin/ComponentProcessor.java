@@ -95,6 +95,21 @@ class ComponentProcessor {
 	 * @throws StructureBuildingException
 	 */
 	void processParse(Element parse) throws ComponentGenerationException, StructureBuildingException {
+		processParse(parse, parse);
+	}
+
+	/**
+	* Processes a parse result that has already gone through the ComponentGenerator.
+	 * At this stage one can expect all substituents/roots to have at least 1 group.
+	 * Multiple groups are present in, for example, fusion nomenclature. By the end of this function there will be exactly 1 group
+	 * associated with each substituent/root. Multiplicative nomenclature can result in there being multiple roots
+	 * @param parse 
+	 * @param outputParse
+	 * @throws ComponentGenerationException
+	 * @throws StructureBuildingException
+	 */
+	void processParse(Element parse, Element outputParse) throws ComponentGenerationException, StructureBuildingException {
+		// Process parse
 		List<Element> words =OpsinTools.getDescendantElementsWithTagName(parse, WORD_EL);
 		int wordCount =words.size();
 		for (int i = wordCount -1; i>=0; i--) {
@@ -227,6 +242,140 @@ class ComponentProcessor {
 			processWordLevelMultiplierIfApplicable(word, roots, wordCount);
 		}
 		new WordRulesOmittedSpaceCorrector(state, parse).correctOmittedSpaces();//TODO where should this go?
+		
+		// Process outputParse independently (same operations)
+		List<Element> outputWords =OpsinTools.getDescendantElementsWithTagName(outputParse, WORD_EL);
+		int outputWordCount =outputWords.size();
+		for (int i = outputWordCount -1; i>=0; i--) {
+			Element word = outputWords.get(i);
+			String wordRule = OpsinTools.getParentWordRule(word).getAttributeValue(WORDRULE_EL);
+			state.currentWordRule = WordRule.valueOf(wordRule);
+			if (word.getAttributeValue(TYPE_ATR).equals(WordType.functionalTerm.toString())){
+				continue;//functionalTerms are handled on a case by case basis by wordRules
+			}
+
+			List<Element> roots = OpsinTools.getDescendantElementsWithTagName(word, ROOT_EL);
+			if (roots.size() > 1){
+				throw new ComponentGenerationException("Multiple roots, but only 0 or 1 were expected. Found: " + roots.size());
+			}
+			List<Element> substituents = OpsinTools.getDescendantElementsWithTagName(word, SUBSTITUENT_EL);
+			List<Element> substituentsAndRoot = OpsinTools.combineElementLists(substituents, roots);
+			List<Element> brackets = OpsinTools.getDescendantElementsWithTagName(word, BRACKET_EL);
+			List<Element> substituentsAndRootAndBrackets = OpsinTools.combineElementLists(substituentsAndRoot, brackets);
+			List<Element> groups = OpsinTools.getDescendantElementsWithTagName(word, GROUP_EL);
+
+			for (Element group : groups) {
+				Fragment thisFrag = resolveGroup(state, group);
+				processChargeAndOxidationNumberSpecification(group, thisFrag);//e.g. mercury(2+) or mercury(II)
+			}
+			
+			for (Element subOrRoot : substituentsAndRoot) {
+				applyDLPrefixes(subOrRoot);
+				processCarbohydrates(subOrRoot);//e.g. glucopyranose (needs to be done before determineLocantMeaning to cope with alpha,beta for undefined anomer stereochemistry)
+			}
+			
+			Element finalSubOrRootInWord = word.getChild(word.getChildCount() - 1);
+			while (!finalSubOrRootInWord.getName().equals(ROOT_EL) && !finalSubOrRootInWord.getName().equals(SUBSTITUENT_EL)){
+				List<Element> children = OpsinTools.getChildElementsWithTagNames(finalSubOrRootInWord, new String[]{ROOT_EL, SUBSTITUENT_EL, BRACKET_EL});
+				if (children.isEmpty()){
+					throw new ComponentGenerationException("Unable to find finalSubOrRootInWord");
+				}
+				finalSubOrRootInWord = children.get(children.size() - 1);
+			}
+
+			for (Element subOrRootOrBracket : substituentsAndRootAndBrackets) {
+				determineLocantMeaning(subOrRootOrBracket, finalSubOrRootInWord);
+			}
+
+			for (Element subOrRoot : substituentsAndRoot) {
+				processMultipliers(subOrRoot);
+				detectConjunctiveSuffixGroups(subOrRoot, groups);
+				matchLocantsToDirectFeatures(subOrRoot);
+				
+				List<Element> groupsOfSubOrRoot = subOrRoot.getChildElements(GROUP_EL);
+				if (groupsOfSubOrRoot.size() > 0) {
+					Element lastGroupInSubOrRoot =groupsOfSubOrRoot.get(groupsOfSubOrRoot.size() - 1);
+					preliminaryProcessSuffixes(lastGroupInSubOrRoot, subOrRoot.getChildElements(SUFFIX_EL));
+				}
+			}
+			for (int j = substituents.size() -1; j >=0; j--) {
+				Element substituent = substituents.get(j);
+				if (substituent.getChildElements(GROUP_EL).isEmpty()) {
+					boolean removed = removeAndMoveToAppropriateGroupIfHydroSubstituent(substituent);//this REMOVES a substituent just containing hydro/perhydro elements and moves these elements in front of an appropriate ring
+					if (!removed){
+						removed = removeAndMoveToAppropriateGroupIfSubtractivePrefix(substituent);
+					}
+					if (!removed){
+						removed = removeAndMoveToAppropriateGroupIfRingBridge(substituent);
+					}
+					if (!removed){
+						throw new RuntimeException("OPSIN Bug: Encountered substituent with no group!: " + substituent.toXML() );
+					}
+					substituents.remove(j);
+					substituentsAndRoot.remove(substituent);
+					substituentsAndRootAndBrackets.remove(substituent);
+				}
+			}
+			
+			functionalReplacement.processAcidReplacingFunctionalClassNomenclature(finalSubOrRootInWord, word);
+
+			if (functionalReplacement.processPrefixFunctionalReplacementNomenclature(groups, substituents)){//true if functional replacement performed, 1 or more substituents will have been removed
+				substituentsAndRoot = OpsinTools.combineElementLists(substituents, roots);
+				substituentsAndRootAndBrackets =OpsinTools.combineElementLists(substituentsAndRoot, brackets);
+			}
+			
+			handleGroupIrregularities(groups);
+
+			for (Element subOrRoot : substituentsAndRoot) {
+				processHW(subOrRoot);//hantzch-widman rings
+				FusedRingBuilder.processFusedRings(state, subOrRoot);
+				processFusedRingBridges(subOrRoot);
+				assignElementSymbolLocants(subOrRoot);
+				processRingAssemblies(subOrRoot);
+				processPolyCyclicSpiroNomenclature(subOrRoot);
+			}
+
+			for (Element subOrRoot : substituentsAndRoot) {
+				applyLambdaConvention(subOrRoot);
+				handleMultiRadicals(subOrRoot);
+			}
+
+			addImplicitBracketsToAminoAcids(groups, brackets);
+			for (Element substituent : substituents) {
+				matchLocantsToIndirectFeatures(substituent);
+				addImplicitBracketsWhenSubstituentHasTwoLocants(substituent, brackets);
+				implicitlyBracketToPreviousSubstituentIfAppropriate(substituent, brackets);
+			}
+			for (Element root : roots) {
+				matchLocantsToIndirectFeatures(root);
+			}
+
+			for (Element subOrRoot : substituentsAndRoot) {
+				assignImplicitLocantsToDiTerminalSuffixes(subOrRoot);
+				processConjunctiveNomenclature(subOrRoot);
+				suffixApplier.resolveSuffixes(subOrRoot.getFirstChildElement(GROUP_EL), subOrRoot.getChildElements(SUFFIX_EL));
+				if (subOrRoot.getName().equals(SUBSTITUENT_EL)) {
+					moveSubstituentDetachableHetAtomRepl(subOrRoot);
+				}
+			}
+
+			moveErroneouslyPositionedLocantsAndMultipliers(brackets);//e.g. (tetramethyl)azanium == tetra(methyl)azanium
+			List<Element> children = OpsinTools.getChildElementsWithTagNames(word, new String[]{ROOT_EL, SUBSTITUENT_EL, BRACKET_EL});
+			addImplicitBracketsWhenFirstSubstituentHasTwoMultipliers(children.get(0), brackets);//e.g. ditrifluoroacetic acid --> di(trifluoroacetic acid)
+			while (children.size() == 1) {
+				children = OpsinTools.getChildElementsWithTagNames(children.get(0), new String[]{ROOT_EL, SUBSTITUENT_EL, BRACKET_EL});
+			}
+			if (children.size() > 0) {
+				assignLocantsToMultipliedRootIfPresent(children.get(children.size() - 1));//multiplicative nomenclature e.g. methylenedibenzene or 3,4'-oxydipyridine
+			}
+			substituentsAndRootAndBrackets =OpsinTools.combineElementLists(substituentsAndRoot, brackets);//implicit brackets may have been created
+			for (Element subBracketOrRoot : substituentsAndRootAndBrackets) {
+				assignLocantsAndMultipliers(subBracketOrRoot);
+			}
+			processBiochemicalLinkageDescriptors(substituents, brackets);
+			processWordLevelMultiplierIfApplicable(word, roots, outputWordCount);
+		}
+		new WordRulesOmittedSpaceCorrector(state, outputParse).correctOmittedSpaces();//TODO where should this go?
 	}
 
 	/**Resolves the contents of a group element
