@@ -328,7 +328,7 @@ class ComponentProcessor {
 
 			for (Element subOrRoot : substituentsAndRoot) {
 				processHW(subOrRoot);//hantzch-widman rings
-				FusedRingBuilder.processFusedRings(state, subOrRoot);
+				FusedRingBuilderForOutput.processFusedRings(state, subOrRoot); // Use FusedRingBuilderForOutput for outputParse
 				processFusedRingBridges(subOrRoot);
 				assignElementSymbolLocants(subOrRoot);
 				processRingAssemblies(subOrRoot);

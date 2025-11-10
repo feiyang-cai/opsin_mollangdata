@@ -54,6 +54,9 @@ class XmlDeclarations {
 	/**A bridge described in SMILES for used on rings*/
 	static final String FUSEDRINGBRIDGE_EL ="fusedRingBridge";
 
+	/**A fused child ring element containing fusion information*/
+	static final String FUSEDCHILDRING_EL ="fusedChildRing";
+
 	/**An O that indicates that the preceding alkaneStem is in fact a bridge*/
 	static final String BRIDGEFORMINGO_EL ="bridgeFormingO";
 
