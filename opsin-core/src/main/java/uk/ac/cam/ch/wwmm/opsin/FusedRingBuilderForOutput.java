@@ -253,7 +253,7 @@ class FusedRingBuilderForOutput {
 		fusedRingName.append(lastGroup.getValue());
 
 		Element fusedRingEl =lastGroup;//reuse this element to save having to remap suffixes...
-		fusedRingEl.getAttribute(VALUE_ATR).setValue(fusedRingName.toString());
+		// fusedRingEl.getAttribute(VALUE_ATR).setValue(fusedRingName.toString()); //MolLangData Comment: We do not need to set the value here
 		fusedRingEl.getAttribute(TYPE_ATR).setValue(RING_TYPE_VAL);
 		fusedRingEl.setValue(fusedRingName.toString());
 
@@ -763,13 +763,13 @@ class FusedRingBuilderForOutput {
 		// Create FusedChildRing element
 		Element fusedChildRingEl = new TokenEl(FUSEDCHILDRING_EL);
 		
-		// Set attributes with fusion information
-		fusedChildRingEl.addAttribute(new Attribute(VALUE_ATR, childRingTokenEl.getValue()));
-		if (childRingTokenEl.getAttribute(SUBTYPE_ATR) != null) {
-			fusedChildRingEl.addAttribute(new Attribute(SUBTYPE_ATR, childRingTokenEl.getAttributeValue(SUBTYPE_ATR)));
-		}
-		if (childRingTokenEl.getAttribute(LABELS_ATR) != null) {
-			fusedChildRingEl.addAttribute(new Attribute(LABELS_ATR, childLabelsStr));
+		// Set the value from childRing tokenEl value
+		fusedChildRingEl.setValue(childRingTokenEl.getValue());
+		
+		// Copy all attributes from childRing tokenEl to fusedChildRingEl
+		for (int i = 0; i < childRingTokenEl.getAttributeCount(); i++) {
+			Attribute attr = childRingTokenEl.getAttribute(i);
+			fusedChildRingEl.addAttribute(new Attribute(attr));
 		}
 		
 		// Add fusion information as attributes
