@@ -17,13 +17,14 @@ import static uk.ac.cam.ch.wwmm.opsin.XmlDeclarations.*;
 import static uk.ac.cam.ch.wwmm.opsin.OpsinTools.*;
 import static uk.ac.cam.ch.wwmm.opsin.StructureBuildingMethods.*;
 
-/**Constructs a single OPSIN fragment which describes the molecule from the ComponentGenerator/ComponentProcessor results.
+/**Constructs a single OPSIN fragment which describes the molecule from the ComponentGenerator/ComponentProcessorForOutput results.
+ * This is a separate builder for outputParse that does not modify the original parse.
  *
  * @author ptc24
  * @author dl387
  *
  */
-class StructureBuilder {
+class StructureBuilderForOutput {
 	
 	private static final Pattern matchBoroHydrogenIsotope = Pattern.compile("boro(deuter|trit)ide?");
 	private final BuildState state;
@@ -31,16 +32,17 @@ class StructureBuilder {
 	
 	private int currentTopLevelWordRuleCount;
 	
-	StructureBuilder(BuildState state) {
+	StructureBuilderForOutput(BuildState state) {
 		this.state = state;
 	}
 
-	/**	Builds a molecule as a Fragment based on ComponentProcessor output.
-	 * @param molecule The ComponentProcessor output.
+	/**	Builds a molecule as a Fragment based on ComponentProcessorForOutput output.
+	 * This method processes outputParse independently.
+	 * @param molecule The ComponentProcessorForOutput output (outputParse).
 	 * @return A single Fragment - the built molecule.
 	 * @throws StructureBuildingException If the molecule won't build - there may be many reasons.
 	 */
-	Fragment buildFragment(Element molecule) throws StructureBuildingException {
+	Fragment buildOutputFragment(Element molecule) throws StructureBuildingException {
 		List<Element> wordRules = molecule.getChildElements(WORDRULE_EL);
 
 		currentTopLevelWordRuleCount = wordRules.size();
@@ -67,7 +69,8 @@ class StructureBuilder {
 		state.fragManager.makeHydrogensExplicit();
 
 		Fragment uniFrag = state.fragManager.getUnifiedFragment();
-		processStereochemistry(molecule, uniFrag);
+		// MolLangData TODO: we are directly skipping stereochemistry for now, this will make the SMILES output wrong...
+		//processStereochemistry(molecule, uniFrag);
 
 		if (uniFrag.getOutAtomCount() > 0) {
 			if (!state.n2sConfig.isAllowRadicals()) {

@@ -20,13 +20,14 @@ import java.util.regex.Pattern;
 import static uk.ac.cam.ch.wwmm.opsin.XmlDeclarations.*;
 import static uk.ac.cam.ch.wwmm.opsin.OpsinTools.*;
 
-/**Performs structure-aware destructive procedural parsing on parser results.
+/**Performs structure-aware destructive procedural parsing on outputParse results.
+* This is a separate processor for outputParse that does not modify the original parse.
 *
 * @author dl387
 *
 */
 
-class ComponentProcessor {
+class ComponentProcessorForOutput {
 	private static final Pattern matchAddedHydrogenBracket =Pattern.compile("[\\[\\(\\{]([^\\[\\(\\{]*)H[\\]\\)\\}]");
 	private static final Pattern matchElementSymbolOrAminoAcidLocant = Pattern.compile("[A-Z][a-z]?'*(\\d+[a-z]?'*)?");
 	private static final Pattern matchChalcogenReplacement= Pattern.compile("thio|seleno|telluro");
@@ -79,23 +80,24 @@ class ComponentProcessor {
 		specialHWRings.put("borthiin", new String[]{"saturated","S","B","S","B","S","B"});
 	}
 
-	ComponentProcessor(BuildState state, SuffixApplier suffixApplier) {
+	ComponentProcessorForOutput(BuildState state, SuffixApplier suffixApplier) {
 		this.state = state;
 		this.suffixApplier = suffixApplier;
 		this.functionalReplacement = new FunctionalReplacement(state);
 	}
 
 	/**
-	* Processes a parse result that has already gone through the ComponentGenerator.
+	* Processes an outputParse result that has already gone through the ComponentGenerator.
 	 * At this stage one can expect all substituents/roots to have at least 1 group.
 	 * Multiple groups are present in, for example, fusion nomenclature. By the end of this function there will be exactly 1 group
 	 * associated with each substituent/root. Multiplicative nomenclature can result in there being multiple roots
-	 * @param parse 
+	 * This processor is specifically for outputParse and uses FusedRingBuilderForOutput for fused ring processing.
+	 * @param outputParse
 	 * @throws ComponentGenerationException
 	 * @throws StructureBuildingException
 	 */
-	void processParse(Element parse) throws ComponentGenerationException, StructureBuildingException {
-		List<Element> words =OpsinTools.getDescendantElementsWithTagName(parse, WORD_EL);
+	void processOutputParse(Element outputParse) throws ComponentGenerationException, StructureBuildingException {
+		List<Element> words =OpsinTools.getDescendantElementsWithTagName(outputParse, WORD_EL);
 		int wordCount =words.size();
 		for (int i = wordCount -1; i>=0; i--) {
 			Element word = words.get(i);
@@ -179,7 +181,7 @@ class ComponentProcessor {
 
 			for (Element subOrRoot : substituentsAndRoot) {
 				processHW(subOrRoot);//hantzch-widman rings
-				FusedRingBuilder.processFusedRings(state, subOrRoot);
+				FusedRingBuilderForOutput.processFusedRings(state, subOrRoot);
 				processFusedRingBridges(subOrRoot);
 				assignElementSymbolLocants(subOrRoot);
 				processRingAssemblies(subOrRoot);
@@ -226,7 +228,7 @@ class ComponentProcessor {
 			processBiochemicalLinkageDescriptors(substituents, brackets);
 			processWordLevelMultiplierIfApplicable(word, roots, wordCount);
 		}
-		new WordRulesOmittedSpaceCorrector(state, parse).correctOmittedSpaces();//TODO where should this go?
+		new WordRulesOmittedSpaceCorrector(state, outputParse).correctOmittedSpaces();//TODO where should this go?
 	}
 
 	/**Resolves the contents of a group element

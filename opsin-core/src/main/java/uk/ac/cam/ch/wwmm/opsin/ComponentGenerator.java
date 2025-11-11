@@ -150,44 +150,6 @@ class ComponentGenerator {
 		for (Element bracket : brackets) {
 			moveDetachableHetAtomRepl(bracket);
 		}
-		
-		// Process outputParse independently (same operations)
-		List<Element> outputSubstituentsAndRoot = OpsinTools.getDescendantElementsWithTagNames(outputParse, new String[]{SUBSTITUENT_EL, ROOT_EL});
-
-		for (Element subOrRoot: outputSubstituentsAndRoot) {
-			/* Throws exceptions for occurrences that are ambiguous and this parse has picked the incorrect interpretation */
-			resolveAmbiguities(subOrRoot);
-
-			processLocants(subOrRoot);
-			convertOrthoMetaParaToLocants(subOrRoot);
-			formAlkaneStemsFromComponents(subOrRoot);
-			processAlkaneStemModifications(subOrRoot);//e.g. tert-butyl
-			processHeterogenousHydrides(subOrRoot);//e.g. tetraphosphane, disiloxane
-			processIndicatedHydrogens(subOrRoot);
-			processStereochemistry(subOrRoot);
-			processInfixes(subOrRoot);
-			processSuffixPrefixes(subOrRoot);
-			processLambdaConvention(subOrRoot);
-		}
-		List<Element> outputGroups =  OpsinTools.getDescendantElementsWithTagName(outputParse, GROUP_EL);
-
-		/* Converts open/close bracket elements to bracket elements and
-		 *  places the elements inbetween within the newly created bracket */
-		List<Element> outputBrackets = new ArrayList<>();
-		findAndStructureBrackets(outputSubstituentsAndRoot, outputBrackets);
-
-		for (Element subOrRoot: outputSubstituentsAndRoot) {
-			processHydroCarbonRings(subOrRoot);
-			handleSuffixIrregularities(subOrRoot);//handles quinone -->dioxo
-		}
-		for (Element group : outputGroups) {
-			detectAlkaneFusedRingBridges(group);
-			processRings(group);//processes cyclo, von baeyer and spiro tokens
-			handleGroupIrregularities(group);//handles benzyl, diethylene glycol, phenanthrone and other awkward bits of nomenclature
-		}
-		for (Element bracket : outputBrackets) {
-			moveDetachableHetAtomRepl(bracket);
-		}
 	}
 
 	/**

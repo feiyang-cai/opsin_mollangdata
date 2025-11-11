@@ -11,7 +11,7 @@ package uk.ac.cam.ch.wwmm.opsin;
 public class ExampleGetSmilesAndXml {
 	
 	public static void main(String[] args) {
-		String chemicalName = "benzothiophen-5-ol";
+		String chemicalName = "3-[4-[(2S)-2-[(3R)-3-(fluoromethyl)pyrrolidin-1-yl]propoxy]phenoxy]-2-(4-hydroxyphenyl)-1-benzothiophen-5-ol";
 		
 		System.out.println("Parsing chemical name: " + chemicalName);
 		System.out.println("==========================================");
