@@ -11,8 +11,16 @@ package uk.ac.cam.ch.wwmm.opsin;
 public class ExampleGetSmilesAndXml {
 	
 	public static void main(String[] args) {
-		String chemicalName = "3-[4-[(2S)-2-[(3R)-3-(fluoromethyl)pyrrolidin-1-yl]propoxy]phenoxy]-2-(4-hydroxyphenyl)-1-benzothiophen-5-ol";
-		
+		//String chemicalName = "3-[4-[(2S)-2-[(3R)-3-(fluoromethyl)pyrrolidin-1-yl]propoxy]phenoxy]-2-(4-hydroxyphenyl)-1-benzothiophen-5-ol";
+		//String chemicalName = "benzothiophen-5-ol";
+		//String chemicalName = "5-heptyl-5,6,7,8-tetrahydrobenzo[f]benzimidazol-2-amine";
+		//String chemicalName = "5,6,7,8-tetrahydrobenzo[f]benzimidazol-2-amine";
+        //String chemicalName = "benzo[e]benzimidazol-2-amine";
+		//String chemicalName = "1-butyl-5-[4-(diethylamino)phenyl]imino-4-methyl-2,6-dioxopyridine-3-carbonitrile";
+		String chemicalName = "(2R,3R)-2-(3,4-dihydroxyphenyl)-3,4-dihydro-2H-chromene-3,5,7-triol";
+
+		// need to deal with the following:
+		//String chemicalName = "N-[3-[2-[4-(2-methylquinolin-5-yl)piperazin-1-yl]ethyl]phenyl]pyrazine-2-carboxamide";
 		System.out.println("Parsing chemical name: " + chemicalName);
 		System.out.println("==========================================");
 		
