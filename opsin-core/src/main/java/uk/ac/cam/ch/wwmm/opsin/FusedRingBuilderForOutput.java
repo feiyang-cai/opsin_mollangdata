@@ -27,6 +27,9 @@ class FusedRingBuilderForOutput {
 	private final Fragment parentRing;
 	private final Map<Integer,Fragment> fragmentInScopeForEachFusionLevel = new HashMap<>();
 	private final Map<Atom, Atom> atomsToRemoveToReplacementAtom = new HashMap<>();
+	// MolLangData: Map to track original labels for each atom before fusion
+	// Maps: Atom -> (ring index in groupsInFusedRing, original label from that ring)
+	private final Map<Atom, Map<Integer, String>> atomToOriginalLabels = new HashMap<>();
 
 	private FusedRingBuilderForOutput(BuildState state, List<Element> groupsInFusedRing) {
 		this.state = state;
@@ -85,6 +88,8 @@ class FusedRingBuilderForOutput {
 		 * Aromatises appropriate cycloalkane rings, Rejects groups with acyclic atoms
 		 */
         processRingNumberingAndIrregularities();
+		// MolLangData: Initialize original labels mapping before fusion
+		//initializeOriginalLabelsMapping();
 		processBenzoFusions();//FR-2.2.8  e.g. in 2H-[1,3]benzodioxino[6',5',4':10,5,6]anthra[2,3-b]azepine  benzodioxino is one component
 		List<Element> nameComponents = formNameComponentList();
 		nameComponents.remove(lastGroup);
@@ -239,12 +244,36 @@ class FusedRingBuilderForOutput {
 				fragmentInScopeForEachFusionLevel.put(fusionLevel, fusionComponents[0]);
 			}
 		}
+
+		// MolLangData: Create snapshots of labels and atoms before fusion
+		Map<Atom, String> parentRingAtomToLabel = createAtomToLabelSnapshot(parentRing);
+		// Have a list of mapping of all the componentsFragment to their atomToLabel snapshot
+		List<Map<Atom, String>> componentFragmentsAtomToLabel = new ArrayList<>();
+
 		for (Fragment ring : componentFragments) {
+			Map<Atom, String> componentFragmentAtomToLabel = createAtomToLabelSnapshot(ring);
 			state.fragManager.incorporateFragment(ring, parentRing);
+			updateSnapshotWithAtomReplacements(parentRingAtomToLabel, atomsToRemoveToReplacementAtom);
+			updateSnapshotWithAtomReplacements(componentFragmentAtomToLabel, atomsToRemoveToReplacementAtom);
+			componentFragmentsAtomToLabel.add(componentFragmentAtomToLabel);
 		}
+		
+		// MolLangData: Update atomToOriginalLabels to map removed atoms to their replacement atoms
+		//updateAtomToOriginalLabelsWithReplacements(atomsToRemoveToReplacementAtom);
+
+		
 		removeMergedAtoms();
 
+		
+		
+		// MolLangData: Update snapshots to map removed atoms to their replacement atoms
+		//updateSnapshotWithAtomReplacements(parentRingAtomToLabel, atomsToRemoveToReplacementAtom);
+		//updateSnapshotWithAtomReplacements(fusedRingAtomToLabel, atomsToRemoveToReplacementAtom);
+
 		FusedRingNumberer.numberFusedRing(parentRing);//numbers the fused ring;
+		
+		// MolLangData: create a fusedRingNumbering element to store the numbering information
+		createFusedRingNumberingElement(parentRing, parentRingAtomToLabel, componentFragmentsAtomToLabel);
 
 		StringBuilder fusedRingName = new StringBuilder();
 		for (Element element : nameComponents) {
@@ -707,6 +736,7 @@ class FusedRingBuilderForOutput {
 			parentAtoms.add(cyclicListAtomsOnSurfaceOfParent.next());
 		}
 		fuseRings(childAtoms, parentAtoms);
+		// MolLangData: merge the child ring tokenEl to the parent ring tokenEl by creating a FusedChildRing element
 		mergeChildRingTokenElToParentRingTokenEl(childRing, parentRing, childAtoms, parentAtoms);
 	}
 	
@@ -772,6 +802,7 @@ class FusedRingBuilderForOutput {
 			fusedChildRingEl.addAttribute(new Attribute(attr));
 		}
 		
+		/*
 		// Add fusion information as attributes
 		StringBuilder fusedChildLabelsStr = new StringBuilder();
 		for (int i = 0; i < fusedChildLabels.size(); i++) {
@@ -788,12 +819,15 @@ class FusedRingBuilderForOutput {
 			}
 			fusedParentLabelsStr.append(fusedParentLabels.get(i));
 		}
+		*/
+
 		
-		fusedChildRingEl.addAttribute(new Attribute("fusedChildLabels", fusedChildLabelsStr.toString()));
-		fusedChildRingEl.addAttribute(new Attribute("fusedParentLabels", fusedParentLabelsStr.toString()));
+		//fusedChildRingEl.addAttribute(new Attribute("fusedChildLabels", fusedChildLabelsStr.toString()));
+		//fusedChildRingEl.addAttribute(new Attribute("fusedParentLabels", fusedParentLabelsStr.toString()));
 		
 		// Insert FusedChildRing element after parentRing tokenEl
-		OpsinTools.insertAfter(parentRingTokenEl, fusedChildRingEl);
+		// Directly combine the parentRing tokenEl and the fusedChildRingEl
+		parentRingTokenEl.addChild(fusedChildRingEl);
 	}
 	
 	/**
@@ -1043,10 +1077,24 @@ class FusedRingBuilderForOutput {
 		 */
 		Fragment benzoRing = benzoEl.getFrag();
 		Fragment parentRing = parentEl.getFrag();
+		
+		// MolLangData: Create snapshots of labels and atoms before fusion
+		Map<Atom, String> parentRingAtomToLabel = createAtomToLabelSnapshot(parentRing);
+		Map<Atom, String> fusedRingAtomToLabel = createAtomToLabelSnapshot(benzoRing);
+		List<Map<Atom, String>> fusedRingAtomToLabelList = new ArrayList<>();
+		fusedRingAtomToLabelList.add(fusedRingAtomToLabel);
+		
 		performSimpleFusion(null, benzoRing , parentRing);
 		state.fragManager.incorporateFragment(benzoRing, parentRing);
+		
+		// MolLangData: Update snapshots to map removed atoms to their replacement atoms
+		updateSnapshotWithAtomReplacements(parentRingAtomToLabel, atomsToRemoveToReplacementAtom);
+		updateSnapshotWithAtomReplacements(fusedRingAtomToLabel, atomsToRemoveToReplacementAtom);
+		
 		removeMergedAtoms();
 		FusedRingNumberer.numberFusedRing(parentRing);//numbers the fused ring;
+		// MolLangData: create a fusedRingNumbering element to store the numbering information
+		createFusedRingNumberingElement(parentRing, parentRingAtomToLabel, fusedRingAtomToLabelList);
 		Fragment fusedRing =parentRing;
 		setBenzoHeteroatomPositioning(benzoEl, fusedRing);
 	}
@@ -1115,6 +1163,240 @@ class FusedRingBuilderForOutput {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * MolLangData: Creates a snapshot mapping atoms to their labels
+	 * First tries to get labels from atomMapFromLocant, then falls back to index-based approach from labels attribute
+	 * @param ring The fragment to create snapshot for
+	 * @return Map from Atom to label string
+	 */
+	private Map<Atom, String> createAtomToLabelSnapshot(Fragment ring) {
+		Map<Atom, String> atomToLabel = new HashMap<>();
+		Element tokenEl = ring.getTokenEl();
+		
+		if (tokenEl == null) {
+			return atomToLabel;
+		}
+		
+		List<Atom> atomList = ring.getAtomList();
+		
+		// First, try to get labels from atomMapFromLocant
+		Set<String> locants = ring.getLocants();
+		for (String locant : locants) {
+			Atom atom = ring.getAtomByLocant(locant);
+			if (atom != null && atomList.contains(atom)) {
+				// Get the first locant from the label (in case of multiple comma-separated locants)
+				String firstLabel = locant.split(",")[0].trim();
+				if (!firstLabel.isEmpty()) {
+					// Only set if not already set (prefer first locant found)
+					if (!atomToLabel.containsKey(atom)) {
+						atomToLabel.put(atom, firstLabel);
+					}
+				}
+			}
+		}
+		
+		// Fall back to index-based approach from labels attribute for atoms not found in atomMapFromLocant
+		String labelsStr = tokenEl.getAttributeValue(LABELS_ATR);
+		if (labelsStr != null) {
+			String[] labels = labelsStr.split("/", -1);
+			for (int i = 0; i < Math.min(labels.length, atomList.size()); i++) {
+				Atom atom = atomList.get(i);
+				if (!atomToLabel.containsKey(atom)) {
+					String label = labels[i];
+					if (label != null && !label.isEmpty()) {
+						// Get the first locant from the label (in case of multiple comma-separated locants)
+						String firstLabel = label.split(",")[0].trim();
+						if (!firstLabel.isEmpty()) {
+							atomToLabel.put(atom, firstLabel);
+						}
+					}
+				}
+			}
+		}
+		
+		return atomToLabel;
+	}
+
+	/**
+	 * MolLangData: Updates a snapshot map to replace removed atoms with their replacement atoms
+	 * Replaces the key (atom) in the snapshot map with the replacement atom from atomReplacements
+	 * @param snapshot The snapshot map to update
+	 * @param atomReplacements The map of removed atoms to their replacement atoms
+	 */
+	private void updateSnapshotWithAtomReplacements(Map<Atom, String> snapshot, Map<Atom, Atom> atomReplacements) {
+		// Create a list of entries to update to avoid concurrent modification
+		List<Map.Entry<Atom, String>> entriesToUpdate = new ArrayList<>();
+		for (Map.Entry<Atom, String> entry : snapshot.entrySet()) {
+			Atom atom = entry.getKey();
+			if (atomReplacements.containsKey(atom)) {
+				entriesToUpdate.add(entry);
+			}
+		}
+		
+		// Update entries: replace the key (atom) with the replacement atom
+		for (Map.Entry<Atom, String> entry : entriesToUpdate) {
+			Atom oldAtom = entry.getKey();
+			String label = entry.getValue();
+			Atom replacementAtom = atomReplacements.get(oldAtom);
+			// Follow the replacement chain to find the final atom
+			Atom finalAtom = replacementAtom;
+			while (atomReplacements.containsKey(finalAtom)) {
+				finalAtom = atomReplacements.get(finalAtom);
+			}
+			// Remove old entry and add with replacement atom as key
+			snapshot.remove(oldAtom);
+			// If the final atom already exists, merge labels (comma-separated)
+			if (snapshot.containsKey(finalAtom)) {
+				String existingLabel = snapshot.get(finalAtom);
+				snapshot.put(finalAtom, existingLabel + "," + label);
+			} else {
+				snapshot.put(finalAtom, label);
+			}
+		}
+	}
+
+	/**
+	 * MolLangData: Updates atomToOriginalLabels to map removed atoms to their replacement atoms
+	 * @param atomReplacements The map of removed atoms to their replacement atoms
+	 */
+	private void updateAtomToOriginalLabelsWithReplacements(Map<Atom, Atom> atomReplacements) {
+		Map<Atom, Map<Integer, String>> updatedMap = new HashMap<>();
+		for (Map.Entry<Atom, Map<Integer, String>> entry : atomToOriginalLabels.entrySet()) {
+			Atom atom = entry.getKey();
+			Map<Integer, String> ringLabels = entry.getValue();
+			// Follow the replacement chain to find the final atom
+			Atom finalAtom = atom;
+			while (atomReplacements.containsKey(finalAtom)) {
+				finalAtom = atomReplacements.get(finalAtom);
+			}
+			// Merge labels if the final atom already exists
+			if (updatedMap.containsKey(finalAtom)) {
+				updatedMap.get(finalAtom).putAll(ringLabels);
+			} else {
+				updatedMap.put(finalAtom, new HashMap<>(ringLabels));
+			}
+		}
+		atomToOriginalLabels.clear();
+		atomToOriginalLabels.putAll(updatedMap);
+	}
+
+	/**
+	 * MolLangData: Creates a fusedRingNumbering element to store the numbering information
+	 * of the fused ring system. The element contains:
+	 * - labels: The new locants from atomMapFromLocant in parentRing (e.g., "1/2/3/3a/4/5/6/7/7a")
+	 * - originalLabels: For each new label, the original label from each ring (e.g., "(1, )/(2, )/(3, )/(4,1,2)/(, 6,)/(, 5,)/(, 4,)/(,3,)/(5,2,)")
+	 *   Format: (parent, fusedRing1, fusedRing2, ...)
+	 * 
+	 * @param fusedRing The fused ring fragment after numbering
+	 * @param parentRingAtomToLabel Snapshot of parent ring atom-to-label mapping (null for general fusion)
+	 * @param fusedRingAtomToLabelList List of snapshots of rings being fused into the parent ring atom-to-label mappings (null for general fusion)
+	 */
+	private void createFusedRingNumberingElement(Fragment fusedRing, Map<Atom, String> parentRingAtomToLabel, List<Map<Atom, String>> fusedRingAtomToLabelList) {
+		Element parentRingTokenEl = fusedRing.getTokenEl();
+		if (parentRingTokenEl == null) {
+			return;
+		}
+		
+		List<Atom> atomList = fusedRing.getAtomList();
+		if (atomList.isEmpty()) {
+			return;
+		}
+		
+		// If fusedRingAtomToLabelList is empty, return early
+		if (fusedRingAtomToLabelList != null && fusedRingAtomToLabelList.isEmpty()) {
+			return;
+		}
+		
+		// Build labels string from the new locants (ordered by atomList)
+		StringBuilder labelsBuilder = new StringBuilder();
+		StringBuilder originalLabelsBuilder = new StringBuilder();
+		
+		// Iterate through atoms in the fused ring
+		for (int i = 0; i < atomList.size(); i++) {
+			Atom atom = atomList.get(i);
+			
+			// Get the new label (first locant of the atom)
+			String newLabel = atom.getFirstLocant();
+			if (newLabel == null || newLabel.isEmpty()) {
+				newLabel = "";
+			}
+			
+			if (i > 0) {
+				labelsBuilder.append("/");
+				originalLabelsBuilder.append("/");
+			}
+			labelsBuilder.append(newLabel);
+			
+			// Get original labels from snapshots (for specific fusion) or atomToOriginalLabels (for general fusion)
+			String parentLabel = "";
+			List<String> childLabels = new ArrayList<>();
+			
+			if (parentRingAtomToLabel != null && fusedRingAtomToLabelList != null && !fusedRingAtomToLabelList.isEmpty()) {
+				// Specific fusion case with snapshots: use snapshots
+				parentLabel = parentRingAtomToLabel.getOrDefault(atom, "");
+				for (Map<Atom, String> fusedRingAtomToLabel : fusedRingAtomToLabelList) {
+					String label = fusedRingAtomToLabel.getOrDefault(atom, "");
+					childLabels.add(label);
+				}
+			} else {
+				// General fusion case: use atomToOriginalLabels
+				Map<Integer, String> ringLabels = atomToOriginalLabels.get(atom);
+				if (ringLabels != null) {
+					int parentRingIndex = groupsInFusedRing.size() - 1;
+					for (Map.Entry<Integer, String> entry : ringLabels.entrySet()) {
+						Integer ringIndex = entry.getKey();
+						String label = entry.getValue();
+						if (label != null && !label.isEmpty()) {
+							if (ringIndex == parentRingIndex) {
+								parentLabel = label;
+							} else {
+								// For child rings, collect all labels
+								childLabels.add(label);
+							}
+						}
+					}
+				}
+				
+				// If still not found, try to get from parent ring's tokenEl
+				if (parentLabel.isEmpty()) {
+					int parentRingIndex = groupsInFusedRing.size() - 1;
+					Element parentGroup = groupsInFusedRing.get(parentRingIndex);
+					Fragment parentRingFrag = parentGroup.getFrag();
+					Element parentTokenEl = parentRingFrag.getTokenEl();
+					if (parentTokenEl != null) {
+						String parentLabelsStr = parentTokenEl.getAttributeValue(LABELS_ATR);
+						if (parentLabelsStr != null) {
+							String[] parentLabels = parentLabelsStr.split("/", -1);
+							List<Atom> parentAtomList = parentRingFrag.getAtomList();
+							int atomIndex = parentAtomList.indexOf(atom);
+							if (atomIndex >= 0 && atomIndex < parentLabels.length) {
+								String label = parentLabels[atomIndex].split(",")[0].trim();
+								if (!label.isEmpty()) {
+									parentLabel = label;
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			// Format: (parent, fusedRing1, fusedRing2, ...)
+			originalLabelsBuilder.append("(").append(parentLabel);
+			for (String childLabel : childLabels) {
+				originalLabelsBuilder.append(", ").append(childLabel);
+			}
+			originalLabelsBuilder.append(")");
+		}
+		
+		// Create the fusedRingNumbering element
+		Element fusedRingNumberingEl = new TokenEl("fusedRingNumbering");
+		fusedRingNumberingEl.addAttribute(new Attribute("labels", labelsBuilder.toString()));
+		fusedRingNumberingEl.addAttribute(new Attribute("originalLabels", originalLabelsBuilder.toString()));
+		
+		// MolLangData: Add as child of parent ring tokenEl
+		parentRingTokenEl.addChild(fusedRingNumberingEl);
 	}
 }
 

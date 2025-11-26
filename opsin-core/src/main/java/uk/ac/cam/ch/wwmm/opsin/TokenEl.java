@@ -1,12 +1,14 @@
 package uk.ac.cam.ch.wwmm.opsin;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 class TokenEl extends Element {
 	
 	private String value;
 	private Fragment frag;
+	// MolLangData: Support for child TokenEl elements
+	private final List<Element> children = new ArrayList<>();
 
 	TokenEl(String name) {
 		super(name);
@@ -20,7 +22,12 @@ class TokenEl extends Element {
 
 	@Override
 	void addChild(Element child) {
-		throw new UnsupportedOperationException("Tokens do not have children");
+		// MolLangData: Allow TokenEl children
+		if (!(child instanceof TokenEl)) {
+			throw new UnsupportedOperationException("TokenEl can only have TokenEl children");
+		}
+		child.setParent(this);
+		children.add(child);
 	}
 	
 	@Override
@@ -29,6 +36,12 @@ class TokenEl extends Element {
 		for (int i = 0, len = this.attributes.size(); i < len; i++) {
 			Attribute atr = this.attributes.get(i);
 			copy.addAttribute(new Attribute(atr));
+		}
+		// MolLangData: Copy children
+		for (Element childEl : this.children) {
+			Element newChild = childEl.copy();
+			newChild.setParent(copy);
+			copy.addChild(newChild);
 		}
 		return copy;
 	}
@@ -45,37 +58,55 @@ class TokenEl extends Element {
 			Attribute atr = this.attributes.get(i);
 			copy.addAttribute(new Attribute(atr));
 		}
+		// MolLangData: Copy children
+		for (Element childEl : this.children) {
+			Element newChild = childEl.copy();
+			newChild.setParent(copy);
+			copy.addChild(newChild);
+		}
 		return copy;
 	}
 	
 	@Override
 	Element getChild(int index) {
-		throw new UnsupportedOperationException("Tokens do not have children");
+		return children.get(index);
 	}
 
 	@Override
 	int getChildCount() {
-		return 0;
+		return children.size();
 	}
 
 	@Override
 	List<Element> getChildElements() {
-		return Collections.emptyList();
+		return new ArrayList<>(children);
 	}
 
 	@Override
 	List<Element> getChildElements(String name) {
-		return Collections.emptyList();
+		List<Element> elements = new ArrayList<>(1);
+		for (Element element : children) {
+			if (element.name.equals(name)) {
+				elements.add(element);
+			}
+		}
+		return elements;
 	}
 
 	@Override
 	Element getFirstChildElement(String name) {
+		for (Element child : children) {
+			if (child.getName().equals(name)) {
+				return child;
+			}
+		}
 		return null;
 	}
 	
 	@Override
 	Element getLastChildElement() {
-		return null;
+		int childCount = children.size();
+		return childCount > 0 ? children.get(childCount - 1) : null;
 	}
 	
 	@Override
@@ -89,27 +120,44 @@ class TokenEl extends Element {
 
 	@Override
 	int indexOf(Element child) {
-		return -1;
+		return children.indexOf(child);
 	}
 
 	@Override
 	void insertChild(Element child, int index) {
-		throw new UnsupportedOperationException("Tokens do not have children");
+		// MolLangData: Allow TokenEl children
+		if (!(child instanceof TokenEl)) {
+			throw new UnsupportedOperationException("TokenEl can only have TokenEl children");
+		}
+		child.setParent(this);
+		children.add(index, child);
 	}
 	
 	@Override
 	boolean removeChild(Element child) {
-		throw new UnsupportedOperationException("Tokens do not have children");
+		child.setParent(null);
+		return children.remove(child);
 	}
 	
 	@Override
 	Element removeChild(int index) {
-		throw new UnsupportedOperationException("Tokens do not have children");
+		Element removed = children.remove(index);
+		removed.setParent(null);
+		return removed;
 	}
 
 	@Override
 	void replaceChild(Element oldChild, Element newChild) {
-		throw new UnsupportedOperationException("Tokens do not have children");
+		// MolLangData: Allow TokenEl children
+		if (!(newChild instanceof TokenEl)) {
+			throw new UnsupportedOperationException("TokenEl can only have TokenEl children");
+		}
+		int index = indexOf(oldChild);
+		if (index == -1) {
+			throw new RuntimeException("oldChild is not a child of this element.");
+		}
+		removeChild(index);
+		insertChild(newChild, index);
 	}
 	
 	@Override
