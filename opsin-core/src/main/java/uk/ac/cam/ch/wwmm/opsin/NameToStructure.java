@@ -168,7 +168,7 @@ public class NameToStructure {
 
 				//Converts the XML to fragments (handles many different nomenclatueres for describing structure). Assigns locants
 				new ComponentProcessor(state, new SuffixApplier(state, suffixRules)).processParse(parse);
-				new ComponentProcessorForOutput(outputState, new SuffixApplier(outputState, suffixRules)).processOutputParse(outputParse);
+				new ComponentProcessorForOutput(outputState, new SuffixApplierForOutput(outputState, suffixRules)).processOutputParse(outputParse);
 				if (LOG.isDebugEnabled()) {
 					LOG.debug(parse.toXML());
 				}

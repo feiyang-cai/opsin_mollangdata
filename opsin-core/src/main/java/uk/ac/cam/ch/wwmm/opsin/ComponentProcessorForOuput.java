@@ -34,7 +34,7 @@ class ComponentProcessorForOutput {
 	private static final String[] traditionalAlkanePositionNames =new String[]{"alpha", "beta", "gamma", "delta", "epsilon", "zeta"};
 	
 	private final FunctionalReplacement functionalReplacement;
-	private final SuffixApplier suffixApplier;
+	private final SuffixApplierForOutput suffixApplier;
 	private final BuildState state;
 	
 	//rings that look like HW rings but have other meanings. For the HW like inorganics the true meaning is given
@@ -80,7 +80,7 @@ class ComponentProcessorForOutput {
 		specialHWRings.put("borthiin", new String[]{"saturated","S","B","S","B","S","B"});
 	}
 
-	ComponentProcessorForOutput(BuildState state, SuffixApplier suffixApplier) {
+	ComponentProcessorForOutput(BuildState state, SuffixApplierForOutput suffixApplier) {
 		this.state = state;
 		this.suffixApplier = suffixApplier;
 		this.functionalReplacement = new FunctionalReplacement(state);
@@ -1470,7 +1470,10 @@ class ComponentProcessorForOutput {
 							throw new StructureBuildingException("OPSIN bug: " +  value + " not expected after carbohydrate cycliser");
 						}
 						processAldoseDiSuffix(value, carbohydrate, potentialCarbonyl);
-						suffix.detach();
+						// MolLangData: we do not detach the suffix element in the xml for the output
+						// set resolved to yes to avoid being passed to resolveSuffixes later
+						suffix.addAttribute(new Attribute(RESOLVED_ATR, "yes"));
+						//suffix.detach();
 					}
 					else if (value.startsWith("uron")){
 						//strictly these are also aldose di suffixes but in practice they are also used on ketoses
@@ -1484,7 +1487,10 @@ class ComponentProcessorForOutput {
 							}
 						}
 						potentialCarbonyl = processUloseSuffix(carbohydrate, suffix, potentialCarbonyl);
-						suffix.detach();
+						// MolLangData: we do not detach the suffix element in the xml for the output
+						// set resolved to yes to avoid being passed to resolveSuffixes later
+						suffix.addAttribute(new Attribute(RESOLVED_ATR, "yes"));
+						//suffix.detach();
 					}
 					else if (value.equals("itol") || value.equals("yl") || value.equals("glycoside")){
 						suffix.addAttribute(new Attribute(LOCANT_ATR, potentialCarbonyl.getFirstLocant()));
@@ -2016,7 +2022,10 @@ class ComponentProcessorForOutput {
 			preliminaryProcessSuffixes(primaryConjunctiveGroup, suffixes);
 			suffixApplier.resolveSuffixes(primaryConjunctiveGroup, suffixes);
 			for (Element suffix : suffixes) {
-				suffix.detach();
+				// MolLangData: we do not detach the suffix element in the xml for the output
+				// set resolved to yes to avoid being passed to resolveSuffixes later
+				suffix.addAttribute(new Attribute(RESOLVED_ATR, "yes"));
+				//suffix.detach();
 			}
 			primaryConjunctiveGroup.setName(CONJUNCTIVESUFFIXGROUP_EL);
 			allGroups.remove(primaryConjunctiveGroup);
@@ -2207,6 +2216,10 @@ class ComponentProcessorForOutput {
 		}
 		else{
 			for (Element suffix : suffixes) {
+				// MolLangData: if the suffix is resolved, we should not process it
+				if ("yes".equals(suffix.getAttributeValue(RESOLVED_ATR))) {
+					continue;
+				}
 				if (suffix.getAttribute(ADDITIONALVALUE_ATR)!=null){
 					throw new ComponentGenerationException("suffix: " + suffix.getValue() + " used on an inappropriate group");
 				}
@@ -2234,7 +2247,10 @@ class ComponentProcessorForOutput {
 			//suffixes have already been resolved so need to be detached to avoid being passed to resolveSuffixes later
 			for (int i = suffixes.size() -1; i>=0; i--) {
 				Element suffix =suffixes.remove(i);
-				suffix.detach();
+				// MolLangData: we do not detach the suffix element in the xml for the output
+				// set resolved to yes to avoid being passed to resolveSuffixes later
+				suffix.addAttribute(new Attribute(RESOLVED_ATR, "yes"));
+				//suffix.detach();
 			}
 		}
 		if (group.getAttribute(NUMBEROFFUNCTIONALATOMSTOREMOVE_ATR)!=null){
@@ -2361,6 +2377,10 @@ class ComponentProcessorForOutput {
 		}
 
 		for (Element suffix : suffixes) {
+			// MolLangData: if the suffix is resolved, we should not process it
+			if ("yes".equals(suffix.getAttributeValue(RESOLVED_ATR))) {
+				continue;
+			}
 			String suffixValue = suffix.getAttributeValue(VALUE_ATR);
 
 			boolean cyclic;//needed for addSuffixPrefixIfNonePresentAndCyclic rule
@@ -2473,6 +2493,10 @@ class ComponentProcessorForOutput {
 			suffixTypeToUse = STANDARDGROUP_TYPE_VAL;
 		}
 		for (Element suffix : suffixes) {
+			// MolLangData: if the suffix is resolved, we should not process it
+			if ("yes".equals(suffix.getAttributeValue(RESOLVED_ATR))) {
+				continue;
+			}
 			String suffixValue = suffix.getAttributeValue(VALUE_ATR);
 			List<SuffixRule> suffixRules = suffixApplier.getSuffixRuleTags(suffixTypeToUse, suffixValue, subgroupType);
 			for (SuffixRule suffixRule : suffixRules) {
@@ -3731,7 +3755,10 @@ class ComponentProcessorForOutput {
 		if (!suffixes.isEmpty()){
 			suffixApplier.resolveSuffixes(group, suffixes);
 			for (Element suffix : suffixes) {
-				suffix.detach();
+				// MolLangData: we do not detach the suffix element in the xml for the output
+				// set resolved to yes to avoid being passed to resolveSuffixes later
+				suffix.addAttribute(new Attribute(RESOLVED_ATR, "yes"));
+				//suffix.detach();
 			}
 		}
 		if (substituentToResolve.getChildCount() != 0){
@@ -4089,6 +4116,10 @@ class ComponentProcessorForOutput {
 			outAtomsThatWillBeAdded += suffix.getOutAtomCount();
 		}
 		for (Element suffix : suffixes) {
+			// MolLangData: if the suffix is resolved, we should not process it
+			if ("yes".equals(suffix.getAttributeValue(RESOLVED_ATR))) {
+				continue;
+			}
 			String suffixValue = suffix.getAttributeValue(VALUE_ATR);
 			List<SuffixRule> suffixRules = suffixApplier.getSuffixRuleTags(suffixTypeToUse, suffixValue, subgroupType);
 			for (SuffixRule suffixRule : suffixRules) {

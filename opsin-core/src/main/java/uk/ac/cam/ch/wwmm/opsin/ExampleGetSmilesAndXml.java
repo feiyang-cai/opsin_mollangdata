@@ -63,48 +63,81 @@ public class ExampleGetSmilesAndXml {
 		//hantzsch-widman ring test
 		//String chemicalName = "1,3-oxazol-2-one";
 		//String chemicalName = "2H-1,2,3-triazole";
-		String chemicalName = "2H-oxepine";
+		//String chemicalName = "2H-oxepine";
+
+		// additive suffix test
+		//String chemicalName = "methylsulfonamidobenzene";
+
+		// conjunctive suffix test
+		String chemicalName = "benzenemethanol";
+
+		// aric acid test
+		//String chemicalName = "2-hydroxyglutaric acid";
+		// dialdose test
+		//String chemicalName = "L-threo-Tetrodialdose";
+		// diulose test
+		//String chemicalName = "L-altro-Octo-4,5-diulose";
+		
 
 
 
 
 		// need to deal with the following:
 		//String chemicalName = "N-[3-[2-[4-(2-methylquinolin-5-yl)piperazin-1-yl]ethyl]phenyl]pyrazine-2-carboxamide";
-		System.out.println("Parsing chemical name: " + chemicalName);
-		System.out.println("==========================================");
-		
-		// Get NameToStructure instance
-		NameToStructure n2s = NameToStructure.getInstance();
-		
-		// Parse the chemical name and get SMILES
-		OpsinResult result = n2s.parseChemicalName(chemicalName);
-		
-		// Display results
-		System.out.println("\nStatus: " + result.getStatus());
-		
-		if (result.getStatus() == OpsinResult.OPSIN_RESULT_STATUS.SUCCESS) {
-			String smiles = result.getSmiles();
-			System.out.println("\nSMILES: " + smiles);
+
+		//String chemicalName = "N'-methyl-4,7,10,13-tetraoxahexadecanediamide";
+
+		try {
+			System.out.println("Parsing chemical name: " + chemicalName);
+			System.out.println("==========================================");
 			
-			// Get XML directly from OpsinResult
-			String parseXml = result.getParseXml();
-			String outputXml = result.getOutputXml();
+			// Get NameToStructure instance
+			NameToStructure n2s = NameToStructure.getInstance();
 			
-			if (parseXml != null) {
-				System.out.println("\nParse XML:");
-				System.out.println("----------------------------------------");
-				System.out.println(parseXml);
-				System.out.println("----------------------------------------");
+			// Parse the chemical name and get SMILES
+			OpsinResult result = n2s.parseChemicalName(chemicalName);
+			
+			// Display results
+			System.out.println("\nStatus: " + result.getStatus());
+			
+			if (result.getStatus() == OpsinResult.OPSIN_RESULT_STATUS.SUCCESS) {
+				String smiles = result.getSmiles();
+				System.out.println("\nSMILES: " + smiles);
+				
+				// Get XML directly from OpsinResult
+				String parseXml = result.getParseXml();
+				String outputXml = result.getOutputXml();
+				
+				if (parseXml != null) {
+					System.out.println("\nParse XML:");
+					System.out.println("----------------------------------------");
+					System.out.println(parseXml);
+					System.out.println("----------------------------------------");
+				}
+				
+				if (outputXml != null) {
+					System.out.println("\nOutput XML:");
+					System.out.println("----------------------------------------");
+					System.out.println(outputXml);
+					System.out.println("----------------------------------------");
+				}
+			} else {
+				System.out.println("\nParsing failed: " + result.getMessage());
 			}
-			
-			if (outputXml != null) {
-				System.out.println("\nOutput XML:");
-				System.out.println("----------------------------------------");
-				System.out.println(outputXml);
-				System.out.println("----------------------------------------");
+		} catch (Exception e) {
+			System.err.println("\nERROR OCCURRED:");
+			System.err.println("==========================================");
+			System.err.println("Error Type: " + e.getClass().getName());
+			System.err.println("Error Message: " + e.getMessage());
+			System.err.println("\nStack Trace (showing file and line numbers):");
+			System.err.println("----------------------------------------");
+			StackTraceElement[] stackTrace = e.getStackTrace();
+			for (StackTraceElement element : stackTrace) {
+				System.err.println("  at " + element.getClassName() + "." + element.getMethodName() + 
+					"(" + element.getFileName() + ":" + element.getLineNumber() + ")");
 			}
-		} else {
-			System.out.println("\nParsing failed: " + result.getMessage());
+			System.err.println("----------------------------------------");
+			e.printStackTrace();
 		}
 	}
 }
