@@ -2893,9 +2893,10 @@ class ComponentProcessorForOutput {
 						Atom a = hwRing.getAtomByLocantOrThrow(Integer.toString(i));
 						a.setElement(ChemEl.valueOf(specialRingInformation[i]));
 					}
-					for(Element p : heteroatomsToProcess){
-						p.detach();
-					}
+					// MolLangData: we do not detach the heteroatom element in the xml for the output
+					//for(Element p : heteroatomsToProcess){
+					//	p.detach();
+					//}
 					heteroatomsToProcess.clear();
 				}
 			}
@@ -2921,7 +2922,8 @@ class ComponentProcessorForOutput {
 				if (heteroatom.getAttribute(LAMBDA_ATR) != null){
 					a.setLambdaConventionValency(Integer.parseInt(heteroatom.getAttributeValue(LAMBDA_ATR)));
 				}
-				heteroatom.detach();
+				// MolLangData: we do not detach the heteroatom element in the xml for the output
+				//heteroatom.detach();
 				it.remove();
 			}
 			
@@ -2938,6 +2940,7 @@ class ComponentProcessorForOutput {
 					Atom firstInDoubleBond = hwRing.getAtomByLocantOrThrow(locantOfDoubleBond);
 					FragmentTools.unsaturate(firstInDoubleBond, 2, hwRing);
 				}
+				// MolLangData: I have no idea what is this for, we should take care when this is happening
 				deltaEl.detach();
 			}
 
@@ -2975,7 +2978,8 @@ class ComponentProcessorForOutput {
 					if (heteroatom.getAttribute(LAMBDA_ATR)!=null){
 						a.setLambdaConventionValency(Integer.parseInt(heteroatom.getAttributeValue(LAMBDA_ATR)));
 					}
-					heteroatom.detach();
+					// MolLangData: we do not detach the heteroatom element in the xml for the output
+					//heteroatom.detach();
 				}
 			}
 			if(name.equals("thithiazol")) {

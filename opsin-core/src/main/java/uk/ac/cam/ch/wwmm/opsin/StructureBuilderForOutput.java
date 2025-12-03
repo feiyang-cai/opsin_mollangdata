@@ -15,7 +15,7 @@ import uk.ac.cam.ch.wwmm.opsin.StereoAnalyser.StereoBond;
 import uk.ac.cam.ch.wwmm.opsin.StereoAnalyser.StereoCentre;
 import static uk.ac.cam.ch.wwmm.opsin.XmlDeclarations.*;
 import static uk.ac.cam.ch.wwmm.opsin.OpsinTools.*;
-import static uk.ac.cam.ch.wwmm.opsin.StructureBuildingMethods.*;
+import static uk.ac.cam.ch.wwmm.opsin.StructureBuildingMethodsForOutput.*;
 
 /**Constructs a single OPSIN fragment which describes the molecule from the ComponentGenerator/ComponentProcessorForOutput results.
  * This is a separate builder for outputParse that does not modify the original parse.
@@ -69,8 +69,8 @@ class StructureBuilderForOutput {
 		state.fragManager.makeHydrogensExplicit();
 
 		Fragment uniFrag = state.fragManager.getUnifiedFragment();
-		// MolLangData TODO: we are directly skipping stereochemistry for now, this will make the SMILES output wrong...
-		//processStereochemistry(molecule, uniFrag);
+
+		processStereochemistry(molecule, uniFrag);
 
 		if (uniFrag.getOutAtomCount() > 0) {
 			if (!state.n2sConfig.isAllowRadicals()) {
@@ -1107,7 +1107,7 @@ class StructureBuilderForOutput {
 			throw new StructureBuildingException("Don't alter wordRules.xml without checking the consequences!");
 		}
 		resolveWordOrBracket(state, firstWord);
-		Element elementaryAtomEl = StructureBuildingMethods.findRightMostGroupInBracket(firstWord);
+		Element elementaryAtomEl = StructureBuildingMethodsForOutput.findRightMostGroupInBracket(firstWord);
 		Fragment elementaryAtomFrag = elementaryAtomEl.getFrag();
 		Atom elementaryAtom = elementaryAtomFrag.getFirstAtom();
 		int charge = elementaryAtom.getCharge();
@@ -2236,10 +2236,10 @@ class StructureBuilderForOutput {
 			if (words.isEmpty()){
 				throw new StructureBuildingException("OPSIN bug: word element not found where expected");
 			}
-			return StructureBuildingMethods.findRightMostGroupInBracket(words.get(words.size()-1));
+			return StructureBuildingMethodsForOutput.findRightMostGroupInBracket(words.get(words.size()-1));
 		}
 		else if (wordOrWordRule.getName().equals(WORD_EL)){//word element can be treated just like a bracket
-			return StructureBuildingMethods.findRightMostGroupInBracket(wordOrWordRule);
+			return StructureBuildingMethodsForOutput.findRightMostGroupInBracket(wordOrWordRule);
 		}
 		else{
 			throw new StructureBuildingException("OPSIN bug: expected word or wordRule");
@@ -2424,7 +2424,7 @@ class StructureBuilderForOutput {
 					bondStereoBondMap.put(b, stereoBond);
 				}
 			}
-			StereochemistryHandler stereoChemistryHandler = new StereochemistryHandler(state, atomStereoCentreMap, bondStereoBondMap);
+			StereochemistryHandlerForOutput stereoChemistryHandler = new StereochemistryHandlerForOutput(state, atomStereoCentreMap, bondStereoBondMap);
 			stereoChemistryHandler.applyStereochemicalElements(stereoChemistryEls);
 			stereoChemistryHandler.removeRedundantStereoCentres(atomsWithPreDefinedAtomParity, bondsWithPreDefinedBondStereo);
 		}

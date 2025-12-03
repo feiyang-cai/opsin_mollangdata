@@ -17,7 +17,56 @@ public class ExampleGetSmilesAndXml {
 		//String chemicalName = "5,6,7,8-tetrahydrobenzo[f]benzimidazol-2-amine";
         //String chemicalName = "benzo[e]benzimidazol-2-amine";
 		//String chemicalName = "1-butyl-5-[4-(diethylamino)phenyl]imino-4-methyl-2,6-dioxopyridine-3-carbonitrile";
-		String chemicalName = "(2R,3R)-2-(3,4-dihydroxyphenyl)-3,4-dihydro-2H-chromene-3,5,7-triol";
+		//String chemicalName = "(2R,3R)-2-(3,4-dihydroxyphenyl)-3,4-dihydro-2H-chromene-3,5,7-triol";
+		//String chemicalName = "(3R,4R,5R)-ethyl 4-acetamido-5-amino-3-(pentan-3-yloxy)cyclohex-1-enecarboxylate";
+		//String chemicalName = "(2Z)-5-ethyl-6-methylhex-2-ene";
+		//String chemicalName = "cis-1,2-dimethylcyclohexane";
+		//String chemicalName = "cis-1,2-dichloroethene";
+		//String chemicalName = "(2E,4Z)-hexa-2,4-diene";
+		//String chemicalName = "(3E)-3-methyl-N-[(3Z)-2-methylpenta-1,3-dien-3-yl]hexa-3,5-dien-2-imine";
+		//String chemicalName = "spiro-9,9'-bifluoren";
+
+		// different stereochemistry cases
+
+		// TODO:
+		//String chemicalName = "manno-hexopyranose";
+		//String chemicalName = "alpha-D-glucopyranose";
+		//String chemicalName = "beta-D-glucopyranose";
+
+		//String chemicalName = "erythro 2,3-butanediol";
+		//String chemicalName = "2-deoxy-D-erythro-pentose";
+
+
+		//Hydro test
+		//String chemicalName = "2(1H)-quinolinone";
+		//String chemicalName = "(2R,3R)-2-(3,4-dihydroxyphenyl)-3,4-dihydro-2H-chromene-3,5,7-triol";
+		//String chemicalName = "tetrahydrofuran";
+
+		//unsaturator test
+		//String chemicalName = "1-butene";
+		//String chemicalName = "cyclohex-2-ene";
+		//String chemicalName = "cyclohexene";
+
+		//heteroatom test
+		//String chemicalName = "2-azabenzofuran";
+		//String chemicalName = "thiazole";
+
+		//subtractive prefix test
+		//String chemicalName = "2'-deoxyadenosine";
+
+		//isotope specification test
+		//String chemicalName = "(²H1)methane";
+
+		//multiplicative test
+		//String chemicalName = "1H,3H-imidazo[1,2-a]pyridine";
+
+		//hantzsch-widman ring test
+		//String chemicalName = "1,3-oxazol-2-one";
+		//String chemicalName = "2H-1,2,3-triazole";
+		String chemicalName = "2H-oxepine";
+
+
+
 
 		// need to deal with the following:
 		//String chemicalName = "N-[3-[2-[4-(2-methylquinolin-5-yl)piperazin-1-yl]ethyl]phenyl]pyrazine-2-carboxamide";
