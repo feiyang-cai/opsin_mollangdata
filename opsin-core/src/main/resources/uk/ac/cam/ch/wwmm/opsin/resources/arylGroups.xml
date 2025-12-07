@@ -2,18 +2,18 @@
 <!--These are groups but may be used as substituents when paired with appropriate suffixes-->
 <tokenLists>
 	<tokenList tagname="group" type="ring" subType="ring" symbol="z">
-		<token value="C1Cc2cccc3cc4ccccc4c1c23" labels="1/2/2a/3/4/5/5a/6/6a/7/8/9/10/10a/10b/10c">aceanthren</token>
-		<token value="c1cc2cccc3cc4ccccc4c1c23" labels="1/2/2a/3/4/5/5a/6/6a/7/8/9/10/10a/10b/10c">aceanthrylen</token>
-		<token value="c1cc2cccc3cccc1c23" labels="1/2/2a/3/4/5/5a/6/7/8/8a/8b">acenaphthylen</token>
-		<token value="C1Cc2cccc3cccc1c23" labels="1/2/2a/3/4/5/5a/6/7/8/8a/8b">acenaphthen</token>
-		<token value="c1cc2cccc3cccc1c23" labels="1/2/2a/3/4/5/5a/6/7/8/8a/8b" addGroup="=O locant 1;=O locant 2" frontLocantsExpected="1,2,3,4,5,6,7,8">acenaphthoquinon</token>
-		<token value="c1ccc2CCc3cc4ccccc4c1c23" labels="1/2/3/3a/4/5/5a/6/6a/7/8/9/10/10a/10b/10c">acephenanthren</token>
-		<token value="c1ccc2ccc3cc4ccccc4c1c23" labels="1/2/3/3a/4/5/5a/6/6a/7/8/9/10/10a/10b/10c">acephenanthrylen</token>
-		<token value="c1cccc2Nc3ccccc3Cc12" labels="1/2/3/4/4a/10/10a/5/6/7/8/8a/9/9a" fusedRingNumbering="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a">acridan</token>
-		<token value="c1cccc2[as]c3ccccc3cc12" labels="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a">acridarsin</token>
-		<token value="c1cccc2nc3ccccc3cc12" labels="1/2/3/4/4a/10/10a/5/6/7/8/8a/9/9a" fusedRingNumbering="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a">acridin</token>
-		<token value="c1cccc2pc3ccccc3cc12" labels="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a">acridophosphin</token>
-		<token value="c1cccc2c3ccc4cc5ccccc5nc4c3nc12" labels="1/2/3/4/4a/4b/5/6/6a/7/7a/8/9/10/11/11a/12/12a/12b/13/13a">acrindolin</token>
+			<token value="C1Cc2cccc3cc4ccccc4c1c23" labels="1/2/2a/3/4/5/5a/6/6a/7/8/9/10/10a/10b/10c" fusedRing1="C1CCCC1" fusedRing2="c1ccccc1" fusedRing3="c1ccccc1" fusedRing4="c1ccccc1" originalLabels="(1,,,)/(2,,,)/(3,1,,)/(,2,,)/(,3,,)/(,4,,)/(,5,1,)/(,,2,)/(,,3,1)/(,,,2)/(,,,3)/(,,,4)/(,,,5)/(,,4,6)/(5,,5,)/(4,6,6,)">aceanthren</token>
+		<token value="c1cc2cccc3cc4ccccc4c1c23" labels="1/2/2a/3/4/5/5a/6/6a/7/8/9/10/10a/10b/10c" fusedRing1="c1cccc1" fusedRing2="c1ccccc1" fusedRing3="c1ccccc1" fusedRing4="c1ccccc1" originalLabels="(1,,,)/(2,,,)/(3,1,,)/(,2,,)/(,3,,)/(,4,,)/(,5,1,)/(,,2,)/(,,3,1)/(,,,2)/(,,,3)/(,,,4)/(,,,5)/(,,4,6)/(5,,5,)/(4,6,6,)">aceanthrylen</token>
+		<token value="c1cc2cccc3cccc1c23" labels="1/2/2a/3/4/5/5a/6/7/8/8a/8b" fusedRing1="c1cccc1" fusedRing2="c1ccccc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,1,)/(,2,)/(,3,)/(,4,)/(,5,1)/(,,2)/(,,3)/(,,4)/(5,,5)/(4,6,6)">acenaphthylen</token>
+		<token value="C1Cc2cccc3cccc1c23" labels="1/2/2a/3/4/5/5a/6/7/8/8a/8b" fusedRing1="C1CCCC1" fusedRing2="c1ccccc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,1,)/(,2,)/(,3,)/(,4,)/(,5,1)/(,,2)/(,,3)/(,,4)/(5,,5)/(4,6,6)">acenaphthen</token>
+		<token value="c1cc2cccc3cccc1c23" labels="1/2/2a/3/4/5/5a/6/7/8/8a/8b" fusedRing1="c1cccc1" fusedRing2="c1ccccc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,1,)/(,2,)/(,3,)/(,4,)/(,5,1)/(,,2)/(,,3)/(,,4)/(5,,5)/(4,6,6)" addGroup="=O locant 1;=O locant 2" frontLocantsExpected="1,2,3,4,5,6,7,8">acenaphthoquinon</token>
+		<token value="c1ccc2CCc3cc4ccccc4c1c23" labels="1/2/3/3a/4/5/5a/6/6a/7/8/9/10/10a/10b/10c" fusedRing1="c1ccccc1" fusedRing2="C1CCCCC1" fusedRing3="c1ccccc1" fusedRing4="c1ccccc1" originalLabels="(1,,,)/(2,,,)/(3,,,)/(4,1,,)/(,2,,)/(,3,,)/(,4,1,)/(,,2,)/(,,3,1)/(,,,2)/(,,,3)/(,,,4)/(,,,5)/(,,4,6)/(6,,5,)/(5,5,6,)">acephenanthren</token>
+		<token value="c1ccc2ccc3cc4ccccc4c1c23" labels="1/2/3/3a/4/5/5a/6/6a/7/8/9/10/10a/10b/10c" fusedRing1="c1ccccc1" fusedRing2="c1cccc1" fusedRing3="c1ccccc1" fusedRing4="c1ccccc1" originalLabels="(1,,,)/(2,,,)/(3,,,)/(4,1,,)/(,2,,)/(,3,,)/(,4,1,)/(,,2,)/(,,3,1)/(,,,2)/(,,,3)/(,,,4)/(,,,5)/(,,4,6)/(6,,5,)/(5,5,6,)">acephenanthrylen</token>
+		<token value="c1cccc2Nc3ccccc3Cc12" labels="1/2/3/4/4a/10/10a/5/6/7/8/8a/9/9a" fusedRingNumbering="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a" fusedRing1="c1ccccc1" fusedRing2="N1CCCCC1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,6,)/(,1,)/(,2,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,3,6)/(,4,)/(6,5,)">acridan</token>
+		<token value="c1cccc2[as]c3ccccc3cc12" labels="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a" fusedRing1="c1ccccc1" fusedRing2="[as]1cccc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,6,)/(,1,)/(,2,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,3,6)/(,4,)/(6,5,)">acridarsin</token>
+		<token value="c1cccc2nc3ccccc3cc12" labels="1/2/3/4/4a/10/10a/5/6/7/8/8a/9/9a" fusedRingNumbering="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a" fusedRing1="c1ccccc1" fusedRing2="n1ccccc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,6,)/(,1,)/(,2,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,3,6)/(,4,)/(6,5,)">acridin</token>
+		<token value="c1cccc2pc3ccccc3cc12" labels="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a" fusedRing1="c1ccccc1" fusedRing2="c1pcccc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,1,)/(,2,)/(,3,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,4,6)/(,5,)/(6,6,)">acridophosphin</token>
+		<token value="c1cccc2c3ccc4cc5ccccc5nc4c3nc12" labels="1/2/3/4/4a/4b/5/6/6a/7/7a/8/9/10/11/11a/12/12a/12b/13/13a" fusedRing1="c1ccccc1" fusedRing2="n1cccc1" fusedRing3="c1ccccc1" fusedRing4="n1ccccc1" fusedRing5="c1ccccc1" originalLabels="(1,,,,)/(2,,,,)/(3,,,,)/(4,,,,)/(5,3,,,)/(,4,1,,)/(,,2,,)/(,,3,,)/(,,4,3,)/(,,,4,)/(,,,5,1)/(,,,,2)/(,,,,3)/(,,,,4)/(,,,,5)/(,,,6,6)/(,,,1,)/(,,5,2,)/(,5,6,,)/(,1,,,)/(6,2,,,)">acrindolin</token>
 		<token value="CNCC(O)c1cc(O)c(O)cc1" labels="/////1/2/3//4//5/6">adrenalin</token>
 		<token value="N1C(=O)NC(=O)C(=O)C(=O)1" labels="1/2//3/4//5//6/">alloxan</token>
 		<token value="NC(C)Cc1ccccc1" labels="////1/2,ortho/3,meta/4,para/5/6">amphetamin</token>
@@ -21,23 +21,23 @@
 		<token value="Nc1ccccc1" labels="/1/2,ortho/3,meta/4,para/5/6">anilin</token>
 		<token value="COc1ccccc1" labels="alpha//1/2,ortho/3,meta/4,para/5/6" addGroup="N defaultLocant 4" frontLocantsExpected="2,ortho,3,meta,4,para,5,6">anisidin</token>
 		<token value="c1(ccccc1)OC" labels="1/2,ortho/3,meta/4,para/5/6//alpha">anisol</token>
-		<token value="c1cccc2cc3ccccc3cc12" labels="1/2/3/4/4a/10/10a/5/6/7/8/8a/9/9a" fusedRingNumbering="1/2/3/4/4a/5/5a/6/7/8/9/9a/10">anthracen</token>
-		<token value="c1cccc2cc3ccccc3cc12" labels="1/2/3/4/4a/10/10a/5/6/7/8/8a/9/9a" addGroup="=O locant 9;=O locant 10" frontLocantsExpected="1,2,3,4,5,6,7,8,9,10">anthraquinon</token>
-		<token value="c1cccc2cc3ccccc3cc12" labels="1/2/3/4/4a/10/10a/5/6/7/8/8a/9/9a" addGroup="=O defaultLocant 1;=O defaultLocant 4;=O defaultLocant 9;=O defaultLocant 10" frontLocantsExpected="1,2,3,4,5,6,7,8,9,10">anthradiquinon</token>
-		<token value="c1cccc2cc3c4nc5ccc6cc7ccccc7cc6c5nc4ccc3cc12" labels="1/2/3/4/4a/5/5a/5b/6/6a/7/8/8a/9/9a/10/11/12/13/13a/14/14a/14b/15/15a/16/17/17a/18/18a">anthrazin</token>
-		<token value="n1cccc2cc3cccnc3nc12" labels="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a">anthyridin</token>
-		<token value="c1cccc2[as]c3ccccc3[as]c12" labels="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a">arsanthren</token>
-		<token value="c1cccc2[as]cc3ccccc3c12" labels="1/2/3/4/4a/5/6/6a/7/8/9/10/10a/10b">arsanthridin</token>
-		<token value="[asH]1ccc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a">arsindol</token>
-		<token value="[AsH]1CCc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a">arsindolin</token>
-		<token value="C1CC[As]2CCCCC12" labels="1/2/3/4/5/6/7/8/8a">arsindolizidin</token>
-		<token value="c1cc[as]2ccccc12" labels="1/2/3/4/5/6/7/8/8a">arsindolizin</token>
-		<token value="[as]1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">arsinolin</token>
-		<token value="c1cc[cH2][as]2ccccc12" labels="1/2/3/4/5/6/7/8/9/9a">arsinolizin</token>
-		<token value="c1ccc2ccc3cccc3c12" labels="1/2/3/3a/4/5/5a/6/7/8/8a/8b">as-indacen</token>
+		<token value="c1cccc2cc3ccccc3cc12" labels="1/2/3/4/4a/10/10a/5/6/7/8/8a/9/9a" fusedRingNumbering="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a" fusedRing1="c1ccccc1" fusedRing2="c1ccccc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,1,)/(,2,)/(,3,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,4,6)/(,5,)/(6,6,)">anthracen</token>
+		<token value="c1cccc2cc3ccccc3cc12" labels="1/2/3/4/4a/10/10a/5/6/7/8/8a/9/9a" fusedRing1="c1ccccc1" fusedRing2="c1ccccc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,1,)/(,2,)/(,3,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,4,6)/(,5,)/(6,6,)" addGroup="=O locant 9;=O locant 10" frontLocantsExpected="1,2,3,4,5,6,7,8,9,10">anthraquinon</token>
+		<token value="c1cccc2cc3ccccc3cc12" labels="1/2/3/4/4a/10/10a/5/6/7/8/8a/9/9a" fusedRing1="c1ccccc1" fusedRing2="c1ccccc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,1,)/(,2,)/(,3,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,4,6)/(,5,)/(6,6,)" addGroup="=O defaultLocant 1;=O defaultLocant 4;=O defaultLocant 9;=O defaultLocant 10" frontLocantsExpected="1,2,3,4,5,6,7,8,9,10">anthradiquinon</token>
+		<token value="c1cccc2cc3c4nc5ccc6cc7ccccc7cc6c5nc4ccc3cc12" labels="1/2/3/4/4a/5/5a/5b/6/6a/7/8/8a/9/9a/10/11/12/13/13a/14/14a/14b/15/15a/16/17/17a/18/18a" fusedRing1="c1ccccc1" fusedRing2="c1ccccc1" fusedRing3="c1ccccc1" fusedRing4="n1ccncc1" fusedRing5="c1ccccc1" fusedRing6="c1ccccc1" fusedRing7="c1ccccc1" originalLabels="(1,,,,,,)/(2,,,,,,)/(3,,,,,,)/(4,,,,,,)/(5,1,,,,,)/(,2,,,,,)/(,3,1,,,,)/(,,2,6,,,)/(,,,1,,,)/(,,,2,1,,)/(,,,,2,,)/(,,,,3,,)/(,,,,4,1,)/(,,,,,2,)/(,,,,,3,1)/(,,,,,,2)/(,,,,,,3)/(,,,,,,4)/(,,,,,,5)/(,,,,,4,6)/(,,,,,5,)/(,,,,5,6,)/(,,,3,6,,)/(,,,4,,,)/(,,3,5,,,)/(,,4,,,,)/(,,5,,,,)/(,4,6,,,,)/(,5,,,,,)/(6,6,,,,,)">anthrazin</token>
+		<token value="n1cccc2cc3cccnc3nc12" labels="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a" fusedRing1="n1ccccc1" fusedRing2="n1ccccc1" fusedRing3="n1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,3,)/(,4,)/(,5,3)/(,,4)/(,,5)/(,,6)/(,,1)/(,6,2)/(,1,)/(6,2,)">anthyridin</token>
+		<token value="c1cccc2[as]c3ccccc3[as]c12" labels="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a" fusedRing1="c1ccccc1" fusedRing2="[as]1cc[as]cc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,6,)/(,1,)/(,2,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,3,6)/(,4,)/(6,5,)">arsanthren</token>
+		<token value="c1cccc2[as]cc3ccccc3c12" labels="1/2/3/4/4a/5/6/6a/7/8/9/10/10a/10b" fusedRing1="c1ccccc1" fusedRing2="[as]1ccccc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,6,)/(,1,)/(,2,)/(,3,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,4,6)/(6,5,)">arsanthridin</token>
+		<token value="[asH]1ccc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a" fusedRing1="[asH]1cccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,1)/(,2)/(,3)/(,4)/(,5)/(5,6)">arsindol</token>
+		<token value="[AsH]1CCc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a" fusedRing1="[AsH]1CCCC1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,1)/(,2)/(,3)/(,4)/(,5)/(5,6)">arsindolin</token>
+		<token value="C1CC[As]2CCCCC12" labels="1/2/3/4/5/6/7/8/8a" fusedRing1="[As]1CCCC1" fusedRing2="[As]1CCCCC1" originalLabels="(4,)/(3,)/(2,)/(1,1)/(,2)/(,3)/(,4)/(,5)/(5,6)">arsindolizidin</token>
+		<token value="c1cc[as]2ccccc12" labels="1/2/3/4/5/6/7/8/8a" fusedRing1="[as]1cccc1" fusedRing2="[as]1ccccc1" originalLabels="(4,)/(3,)/(2,)/(1,1)/(,2)/(,3)/(,4)/(,5)/(5,6)">arsindolizin</token>
+		<token value="[as]1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="[as]1ccccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">arsinolin</token>
+		<token value="c1cc[cH2][as]2ccccc12" labels="1/2/3/4/5/6/7/8/9/9a" fusedRing1="[as]1cccc[cH2]1" fusedRing2="[as]1ccccc1" originalLabels="(3,)/(4,)/(5,)/(6,)/(1,1)/(,2)/(,3)/(,4)/(,5)/(2,6)">arsinolizin</token>
+		<token value="c1ccc2ccc3cccc3c12" labels="1/2/3/3a/4/5/5a/6/7/8/8a/8b" fusedRing1="c1cccc1" fusedRing2="c1ccccc1" fusedRing3="c1cccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,1,)/(,2,)/(,3,)/(,4,1)/(,,2)/(,,3)/(,,4)/(,5,5)/(5,6,)">as-indacen</token>
 		<token value="n1ncncc1" labels="1/2/3/4/5/6">as-triazin|asym-triazin</token>
-		<token value="c1ccc2cccccc12" labels="1/2/3/3a/4/5/6/7/8/8a">azulen</token>
-		<token value="c1ccc2cccc3c(=O)c4ccccc4c1c23" labels="1/2/3/3a/4/5/6/6a/7//7a/8/9/10/11/11a/11b/11c">benzanthron</token>
+		<token value="c1ccc2cccccc12" labels="1/2/3/3a/4/5/6/7/8/8a" fusedRing1="c1cccc1" fusedRing2="c1cccccc1" originalLabels="(1,)/(2,)/(3,)/(4,1)/(,2)/(,3)/(,4)/(,5)/(,6)/(5,7)">azulen</token>
+		<token value="c1ccc2cccc3c(=O)c4ccccc4c1c23" labels="1/2/3/3a/4/5/6/6a/7//7a/8/9/10/11/11a/11b/11c" fusedRing1="c1ccccc1" fusedRing2="c1ccccc1" fusedRing3="c1ccccc1" fusedRing4="c1ccccc1" originalLabels="(1,,,)/(2,,,)/(3,,,)/(4,1,,)/(,2,,)/(,3,,)/(,4,,)/(,5,1,)/(,,2,)//(,,3,1)/(,,,2)/(,,,3)/(,,,4)/(,,,5)/(,,4,6)/(6,,5,)/(5,6,6,)">benzanthron</token>
 		<token value="c1(ccc(N)cc1)c2ccc(N)cc2" labels="1/2/3/4//5/6/1'/2'/3'/4'//5'/6'">benzidin|4,4'-benzidin</token>
 		<token value="c1ccccc1" labels="1/2,ortho/3,meta/4,para/5/6">benzen</token>
 		<token value="c1(ccccc1)C(=O)C(O)c2ccccc2" labels="1/2/3/4/5/6///alpha//1'/2'/3'/4'/5'/6'">benzoin</token>
@@ -47,57 +47,57 @@
 		<token value="c12ccccc1.C2(F)(F)F" labels="1/2,ortho/3,meta/4,para/5/6/alpha///">benzotrifluorid</token>
 		<token value="c12ccccc1.C2(I)(I)I" labels="1/2,ortho/3,meta/4,para/5/6/alpha///">benzotriiodid</token>
 		<token value="C1#CC=CC=C1" labels="1/2,ortho/3,meta/4,para/5/6">benzyn</token>
-		<token value="c1nccc2c3ccccc3[nH]c12" labels="1/2/3/4/4a/4b/5/6/7/8/8a/9/9a">betacarbolin|beta-carbolin|b-carbolin</token>
+		<token value="c1nccc2c3ccccc3[nH]c12" labels="1/2/3/4/4a/4b/5/6/7/8/8a/9/9a" fusedRing1="n1ccccc1" fusedRing2="[nH]1cccc1" fusedRing3="c1ccccc1" originalLabels="(6,,)/(1,,)/(2,,)/(3,,)/(4,3,)/(,4,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,5,6)/(,1,)/(5,2,)">betacarbolin|beta-carbolin|b-carbolin</token>
 		<token value="c1(ccccc1)CCc2ccccc2" labels="1/2/3/4/5/6/alpha/alpha'/1'/2'/3'/4'/5'/6'">bibenzyl</token>
-		<token value="c1cccc2c3ccccc3c12" labels="1/2/3/4/4a/4b/5/6/7/8/8a/8b">biphenylen</token>
-		<token value="C1=CC=CC=2B=C3C=CC=CC3=BC12" labels="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a">boranthren</token>
+		<token value="c1cccc2c3ccccc3c12" labels="1/2/3/4/4a/4b/5/6/7/8/8a/8b" fusedRing1="c1ccccc1" fusedRing2="c1ccc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,1,)(,2,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,3,6)(6,4,)">biphenylen</token>
+		<token value="C1=CC=CC=2B=C3C=CC=CC3=BC12" labels="1/2/3/4/4a/5/5a/6/7/8/9/9a/10/10a" fusedRing1="c1ccccc1" fusedRing2="b1ccbcc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,6,)/(,1,)/(,2,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,3,6)/(,4,)/(6,5,)">boranthren</token>
 		<token value="C123C4CC5CC1.C25(C)C.C3.O4" labels="1/2/3/4/5/6/7/8/9/10/">borneol</token>
-		<token value="n1(C)c(=O)n(C)c2ncn(C)c2c1=O" labels="1//2//3//4/9/8/7//5/6/">caffein</token>
-		<token value="C12C(C)(C)C(=C)C(CC2)C1" labels="1/2///3//4/5/6/7">camphen</token>
+		<token value="n1(C)c(=O)n(C)c2ncn(C)c2c1=O" labels="1//2//3//4/9/8/7//5/6/" fusedRing1="n1cnccc1" fusedRing2="[nH]1cncc1" originalLabels="(1,)//(2,)//(3,)//(4,4)/(,3)/(,2)/(,1)//(5,5)/(6,)/">caffein</token>
+		<token value="C12C(C)(C)C(=C)C(CC2)C1" labels="1/2///3//4/5/6/7" fusedRing1="C1CCCC1" fusedRing2="C1CCCCC1" originalLabels="(1,1)/(2,2)///(3,3)//(4,4)/(,5)/(,6)/(5,)">camphen</token>
 		<token value="C123C(=O)C(=O)C4CC1.C24(C)C.C3" labels="1/2//3//4/5/6/7/8/9/10">camphorquinon</token>
-		<token value="c1cccc2c3ccccc3[nH]c12" labels="1/2/3/4/4a/4b/5/6/7/8/8a/9/9a">carbazol</token>
-		<token value="[nH]1c(=O)ccc2ccccc12" labels="1/2//3/4/4a/5/6/7/8/8a">carbostyril</token>
-		<token value="c1(O)c(O)cccc1" labels="1//2,ortho//3,meta/4,para/5/6" defaultInLocant="3">catechol</token>
+		<token value="c1cccc2c3ccccc3[nH]c12" labels="1/2/3/4/4a/4b/5/6/7/8/8a/9/9a" fusedRing1="c1ccccc1" fusedRing2="[nH]1cccc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,3,)/(,4,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,5,6)/(,1,)/(6,2,)">carbazol</token>
+		<token value="[nH]1c(=O)ccc2ccccc12" labels="1/2//3/4/4a/5/6/7/8/8a" fusedRing1="[nH]1ccccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">carbostyril</token>
+		<token value="c1(O)c(O)cccc1" labels="1//2,ortho//3,meta/4,para/5/6" defaultInLocant="3">catechol</token>\
 		<token value="c1(ccccc1)/C=C/C(=O)c2ccccc2" labels="1/2/3/4/5/6/////1'/2'/3'/4'/5'/6'">chalcon</token><!--always trans according to 2013 recommendations -->
-		<token value="n1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">chinolin</token>
-		<token value="C1Cc2cccc3cc4c5ccccc5ccc4c1c23" labels="1/2/2a/3/4/5/5a/6/6a/6b/7/8/9/10/10a/11/12/12a/12b/12c">cholanthren</token>
-		<token value="O1CCCc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">chroman</token>
-		<token value="S1CCCc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">thiochroman</token>
-		<token value="[Se]1CCCc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">selenochroman</token>
-		<token value="[Te]1CCCc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">tellurochroman</token>
-		<token value="o1[cH2]ccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">chromen</token>
-		<token value="O1C=CCc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">chrom-2-en</token>
-		<token value="O1CC=Cc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">chrom-3-en</token>
-		<token value="s1[cH2]ccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">thiochromen</token>
-		<token value="[se]1[cH2]ccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">selenochromen</token>
-		<token value="[te]1[cH2]ccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">tellurochromen</token>
-		<token value="[o+]1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">chromenylium</token>
-		<token value="[s+]1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">thiochromenylium</token>
-		<token value="[se+]1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">selenochromenylium</token>
-		<token value="[te+]1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">tellurochromenylium</token>
+		<token value="n1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="n1ccccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">chinolin</token>
+		<token value="C1Cc2cccc3cc4c5ccccc5ccc4c1c23" labels="1/2/2a/3/4/5/5a/6/6a/6b/7/8/9/10/10a/11/12/12a/12b/12c" fusedRing1="C1CCCC1" fusedRing2="c1ccccc1" fusedRing3="c1ccccc1" fusedRing4="c1ccccc1" fusedRing5="c1ccccc1" originalLabels="(1,,,,)/(2,,,,)/(3,1,,,)/(,2,,,)/(,3,,,)/(,4,,,)/(,5,1,,)/(,,2,,)/(,,3,1,)/(,,,2,1)/(,,,,2)/(,,,,3)/(,,,,4)/(,,,,5)/(,,,3,6)/(,,,4,)/(,,,5,)/(,,4,6,)/(5,,5,,)/(4,6,6,,)">cholanthren</token>
+		<token value="O1CCCc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="O1CCCCC1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">chroman</token>
+		<token value="S1CCCc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="S1CCCCC1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">thiochroman</token>
+		<token value="[Se]1CCCc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="[Se]1CCCCC1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">selenochroman</token>
+		<token value="[Te]1CCCc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="[Te]1CCCCC1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">tellurochroman</token>
+		<token value="o1[cH2]ccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="o1[cH2]cccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">chromen</token>
+		<token value="O1C=CCc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="O1C=CCCC1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">chrom-2-en</token>
+		<token value="O1CC=Cc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="O1CC=CCC1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">chrom-3-en</token>
+		<token value="s1[cH2]ccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="s1[cH2]cccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">thiochromen</token>
+		<token value="[se]1[cH2]ccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="[se]1[cH2]cccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">selenochromen</token>
+		<token value="[te]1[cH2]ccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="[te]1[cH2]cccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">tellurochromen</token>
+		<token value="[o+]1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="[o+]1ccccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">chromenylium</token>
+		<token value="[s+]1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="[s+]1ccccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">thiochromenylium</token>
+		<token value="[se+]1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="[se+]1ccccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">selenochromenylium</token>
+		<token value="[te+]1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="[te+]1ccccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">tellurochromenylium</token>
 		<token value="[CH-]1cccc1.[CH-]1cccc1.[Cr+2]" labels="1/2/3/4/5/1'/2'/3'/4'/5'/" suffixAppliesToByDefault="1">chromocen</token>
-		<token value="o1[cH2]ccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" addGroup="=O locant 4" frontLocantsExpected="2,3,4,5,6,7,8">chromon</token>
-		<token value="c1cccc2c3ccc4ccccc4c3ccc12" labels="1/2/3/4/4a/4b/5/6/6a/7/8/9/10/10a/10b/11/12/12a">chrysen</token>
-		<token value="n1nccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">cinnolin</token>
+		<token value="o1[cH2]ccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="o1[cH2]cccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)" addGroup="=O locant 4" frontLocantsExpected="2,3,4,5,6,7,8">chromon</token>
+		<token value="c1cccc2c3ccc4ccccc4c3ccc12" labels="1/2/3/4/4a/4b/5/6/6a/7/8/9/10/10a/10b/11/12/12a" fusedRing1="c1ccccc1" fusedRing2="c1ccccc1" fusedRing3="c1ccccc1" fusedRing4="c1ccccc1" originalLabels="(1,,,)/(2,,,)/(3,,,)/(4,,,)/(5,1,,)/(,2,1,)/(,,2,)/(,,3,)/(,,4,1)/(,,,2)/(,,,3)/(,,,4)/(,,,5)/(,,5,6)/(,3,6,)/(,4,,)/(,5,,)/(6,6,,)">chrysen</token>
+		<token value="n1nccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="n1ncccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">cinnolin</token>
 		<token value="[CH-]1cccc1.[CH-]1cccc1.[Co+2]" labels="1/2/3/4/5/1'/2'/3'/4'/5'/" suffixAppliesToByDefault="1">cobaltocen</token>
 		<token value="n1ccccc1" labels="1/2/3/4/5/6" addGroup="C defaultLocant 2;C defaultLocant 4;C defaultLocant 6" frontLocantsExpected="2,3,4,5,6">collidin</token>
-		<token value="O1CCc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a">coumaran</token>
-		<token value="o1c(=O)ccc2ccccc12" labels="1/2//3/4/4a/5/6/7/8/8a">coumarin|cumarin</token>
-		<token value="o1ccc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a">coumaron</token>
+		<token value="O1CCc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a" fusedRing1="O1CCCC1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,1)/(,2)/(,3)/(,4)/(,5)/(5,6)">coumaran</token>
+		<token value="o1c(=O)ccc2ccccc12" labels="1/2//3/4/4a/5/6/7/8/8a" fusedRing1="o1ccccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)//(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">coumarin|cumarin</token>
+		<token value="o1ccc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a" fusedRing1="o1cccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,1)/(,2)/(,3)/(,4)/(,5)/(5,6)">coumaron</token>
 		<token value="c1cc2ccc3ccc4ccc5ccc6ccc71.c28c3c4c5c6c78" labels="1/2/2a/3/4/4a/5/6/6a/7/8/8a/9/10/10a/11/12/12a/12b/12c/12d/12e/12f/12g" >coronen</token>
 		<token value="c1ccccc1O" labels="2,ortho/3,meta/4,para/5/6/1/" addGroup="C defaultLocant 2 alpha" frontLocantsExpected="2,ortho,3,meta,4,para,5,6">cresol</token>
 		<token value="c12ccccc1.C2(C)C" labels="1/2,ortho/3,meta/4,para/5/6///">cumen</token>
 		<token value="c12ccccc1.C2(C)C" labels="1/2,ortho/3,meta/4,para/5/6///" addGroup="C locant 4 alpha" frontLocantsExpected="2,ortho,3,meta,4,para,5,6">cymen</token>
-		<token value="c1cccc2ccc3c4[cH2]ccc4ccc3c12" labels="1/2/3/4/5/6/7/8/14/15/16/17/13/12/11/9/10">cyclopenta[a]phenanthren</token>
-		<token value="C1CCCC2CCCCC12" labels="1/2/3/4/4a/5/6/7/8/8a">decalin</token>
+		<token value="c1cccc2ccc3c4[cH2]ccc4ccc3c12" labels="1/2/3/4/5/6/7/8/14/15/16/17/13/12/11/9/10" fusedRing1="c1ccccc1" fusedRing2="c1ccccc1" fusedRing3="c1ccccc1" fusedRing4="[cH2]1cccc1" originalLabels="(1,,,)/(2,,,)/(3,,,)/(4,,,)/(5,1,,)/(,2,,)/(,3,,)/(,4,1,)/(,,2,5)/(,,,1)/(,,,2)/(,,,3)/(,,3,4)/(,,4,)/(,,5,)/(,5,6,)/(6,6,,)">cyclopenta[a]phenanthren</token>
+		<token value="C1CCCC2CCCCC12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="C1CCCCC1" fusedRing2="C1CCCCC1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">decalin</token>
 		<token value="NCCc1cc(O)c(O)cc1" labels="///1/2/3//4//5/6">dopamin</token>
 		<token value="c1(C)c(C)cc(C)c(C)c1" labels="1//2//3/4//5//6" suffixAppliesToByDefault="5">duren</token>
 		<token value="N1CC1" labels="1/2/3">ethylenimin</token>
 		<token value="c1(c(O)ccc(CC=C)c1)OC" labels="1/2,ortho//3,meta/4,para/5////6//alpha">eugenol</token>
 		<token value="[CH-]1cccc1.[CH-]1cccc1.[Fe+2]" labels="1/2/3/4/5/1'/2'/3'/4'/5'/" suffixAppliesToByDefault="1">ferrocen</token>
-		<token value="[o+]1c(ccc2ccccc12)c3ccccc3" labels="1/2/3/4/4a,10/5/6/7/8/8a,9/1'/2'/3'/4'/5'/6'">flavylium</token>
-		<token value="c1ccc2cccc3c4ccccc4c1c23" labels="1/2/3/3a/4/5/6/6a/6b/7/8/9/10/10a/10b/10c">fluoranthen</token>
-		<token value="c1cccc2c3ccccc3[cH2]c12" labels="1/2/3/4/4a/4b/5/6/7/8/8a/9/9a">fluoren</token>
+		<token value="[o+]1c(ccc2ccccc12)c3ccccc3" labels="1/2/3/4/4a,10/5/6/7/8/8a,9/1'/2'/3'/4'/5'/6'" fusedRing1="[o+]1ccccc1" fusedRing2="c1ccccc1" ring3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,1,)/(,2,)/(,3,)/(,4,)/(,5,)/(6,6,)/(,,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,,6)">flavylium</token>
+		<token value="c1ccc2cccc3c4ccccc4c1c23" labels="1/2/3/3a/4/5/6/6a/6b/7/8/9/10/10a/10b/10c" fusedRing1="c1ccccc1" fusedRing2="c1ccccc1" fusedRing3="c1cccc1" fusedRing4="c1ccccc1" originalLabels="(1,,,)/(2,,,)/(3,,,)/(4,1,,)/(,2,,)/(,3,,)/(,4,,)/(,5,1,)/(,,2,1)/(,,,2)/(,,,3)/(,,,4)/(,,,5)/(,,3,6)/(6,,4,)/(5,6,5,)">fluoranthen</token>
+		<token value="c1cccc2c3ccccc3[cH2]c12" labels="1/2/3/4/4a/4b/5/6/7/8/8a/9/9a" fusedRing1="c1ccccc1" fusedRing2="[cH2]1cccc1" fusedRing3="c1ccccc1" originalLabels="(1,,)/(2,,)/(3,,)/(4,,)/(5,3,)/(,4,1)/(,,2)/(,,3)/(,,4)/(,,5)/(,5,6)/(,1,)/(6,2,)">fluoren</token>
 		<token value="c1cccc2c3ccccc3C4(c5ccccc5c6ccccc64)c12" labels="1/2/3/4/4a/4b/5/6/7/8/8a/9,9'/9a'/1'/2'/3'/4'/4a'/4b'/5'/6'/7'/8'/8a'/9a">spiro-9,9'-bifluoren</token><!--should be 9,9'-spirobifluoren -->
 		<token value="C1=CC=CC1=C" labels="1/2/3/4/5/6">fulven</token>
 		<token value="o1cccc1" labels="1/2/3/4/5">furan</token>
@@ -130,8 +130,8 @@
 		<token value="C1=CCc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a">ind-1-en</token>
 		<token value="C1C=Cc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a">ind-2-en</token>
 		<token value="[nH]1ncc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a">indazol</token>
-		<token value="[cH2]1ccc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a">inden</token>
-		<token value="[nH]1ccc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a">indol</token>
+		<token value="[cH2]1ccc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a" fusedRing1="[cH2]1cccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,1)/(,2)/(,3)/(,4)/(,5)/(5,6)">inden</token>
+		<token value="[nH]1ccc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a" fusedRing1="[nH]1cccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,1)/(,2)/(,3)/(,4)/(,5)/(5,6)">indol</token>
 		<token value="N1CCc2ccccc12" labels="1/2/3/3a/4/5/6/7/7a">indolin</token>
 		<token value="C1CCN2CCCCC12" labels="1/2/3/4/5/6/7/8/8a">indolizidin</token>
 		<token value="c1ccn2ccccc12" labels="1/2/3/4/5/6/7/8/8a">indolizin</token>
@@ -289,7 +289,7 @@
 		<token value="n1cncc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">quinazolin</token>
 		<token value="c1cccc2nc3c4ccccc4nc3cc12" labels="1/2/3/4/4a/5/5a/5b/6/7/8/9/9a/10/10a/11/11a">quindolin</token>
 		<token value="c1cccc2nc3nc4ccccc4c3cc12" labels="1/2/3/4/4a/5/5a/6/6a/7/8/9/10/10a/10b/11/11a">quinindolin</token>
-		<token value="n1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a">quinolin</token>
+		<token value="n1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" fusedRing1="n1ccccc1" fusedRing2="c1ccccc1" originalLabels="(1,)/(2,)/(3,)/(4,)/(5,1)/(,2)/(,3)/(,4)/(,5)/(6,6)">quinolin</token>
 		<token value="C1CCCN2CCCCC12" labels="1/2/3/4/5/6/7/8/9/9a">quinolizidin</token>
 		<token value="c1cc[cH2]n2ccccc12" labels="1/2/3/4/5/6/7/8/9/9a">quinolizin</token>
 		<token value="n1cccc2ccccc12" labels="1/2/3/4/4a/5/6/7/8/8a" addGroup="=O defaultLocant 2" frontLocantsExpected="2,3,4,5,6,7,8">quinolon</token>

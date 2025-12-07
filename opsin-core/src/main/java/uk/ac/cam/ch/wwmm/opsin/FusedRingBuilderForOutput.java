@@ -282,7 +282,32 @@ class FusedRingBuilderForOutput {
 		fusedRingName.append(lastGroup.getValue());
 
 		Element fusedRingEl =lastGroup;//reuse this element to save having to remap suffixes...
-		// fusedRingEl.getAttribute(VALUE_ATR).setValue(fusedRingName.toString()); //MolLangData Comment: We do not need to set the value here
+
+
+		// MolLangData: we copy the original tokenEl to a new fusedChildRing element, and add it at the first position of the parent ring tokenEl
+		List<Attribute> allAttributes = fusedRingEl.getAttributes();
+		// Create a new fusedChildRing element
+		Element fusedChildRingEl = new TokenEl(FUSEDCHILDRING_EL);
+		// Set the value as the copy of the original tokenEl value
+		fusedChildRingEl.setValue(fusedRingEl.getValue());
+		// Copy all attributes from the original tokenEl to the new fusedChildRing element
+		for (Attribute attribute : allAttributes) {
+			fusedChildRingEl.addAttribute(new Attribute(attribute));
+		}
+		// insert the new fusedChildRing element at the first position of the parent ring tokenEl
+		fusedRingEl.insertChild(fusedChildRingEl, 0);
+
+		fusedRingEl.getAttribute(VALUE_ATR).setValue(fusedRingName.toString()); //MolLangData Comment: this is original code, set the value of the fused ring as the original tokenEl value
+
+		List<Attribute> attributesToRemove = new ArrayList<>();
+		for (Attribute attribute : allAttributes) {
+			if (!attribute.getName().equals(VALUE_ATR) && !attribute.getName().equals(TYPE_ATR) && !attribute.getName().equals(SUBTYPE_ATR)) {
+				attributesToRemove.add(attribute);
+			}
+		}
+		for (Attribute attribute : attributesToRemove) {
+			fusedRingEl.removeAttribute(attribute);
+		}
 		fusedRingEl.getAttribute(TYPE_ATR).setValue(RING_TYPE_VAL);
 		fusedRingEl.setValue(fusedRingName.toString());
 
@@ -800,6 +825,13 @@ class FusedRingBuilderForOutput {
 		for (int i = 0; i < childRingTokenEl.getAttributeCount(); i++) {
 			Attribute attr = childRingTokenEl.getAttribute(i);
 			fusedChildRingEl.addAttribute(new Attribute(attr));
+		}
+		
+		// Copy all children from childRing tokenEl to fusedChildRingEl
+		for (Element childEl : childRingTokenEl.getChildElements()) {
+			Element copiedChild = childEl.copy();
+			copiedChild.setParent(fusedChildRingEl);
+			fusedChildRingEl.addChild(copiedChild);
 		}
 		
 		/*
@@ -1391,7 +1423,7 @@ class FusedRingBuilderForOutput {
 		}
 		
 		// Create the fusedRingNumbering element
-		Element fusedRingNumberingEl = new TokenEl("fusedRingNumbering");
+		Element fusedRingNumberingEl = new TokenEl("fusedRingLabels");
 		fusedRingNumberingEl.addAttribute(new Attribute("labels", labelsBuilder.toString()));
 		fusedRingNumberingEl.addAttribute(new Attribute("originalLabels", originalLabelsBuilder.toString()));
 		

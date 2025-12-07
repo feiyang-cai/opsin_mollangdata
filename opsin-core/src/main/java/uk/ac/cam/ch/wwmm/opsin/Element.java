@@ -59,6 +59,14 @@ abstract class Element {
 		return null;
 	}
 
+	/**
+	 * Returns all attributes
+	 * @return
+	 */
+	List<Attribute> getAttributes() {
+		return attributes;
+	}
+
 	int getAttributeCount() {
 		return attributes.size();
 	}

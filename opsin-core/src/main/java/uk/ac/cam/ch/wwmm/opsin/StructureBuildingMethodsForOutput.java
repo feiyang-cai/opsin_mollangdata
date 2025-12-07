@@ -504,6 +504,7 @@ class StructureBuildingMethodsForOutput{
 		/*
 		 * Add locanted functionality
 		 */
+
 		
 		if (!subtractivePrefixElements.isEmpty()) {
 			List<Atom> atomsToDehydro = new ArrayList<>();
@@ -550,8 +551,10 @@ class StructureBuildingMethodsForOutput{
 				default:
 					throw new StructureBuildingException("OPSIN bug: Unexpected subtractive prefix type: " + type);
 				}
-				// MolLangData: we do not detach the subtractive prefix element in the xml for the output
-				//subtractivePrefix.detach();
+				// MolLangData: before detaching the subtractive prefix element, we should move it as a child of the group element
+				Element newSubtractivePrefix = subtractivePrefix.copy();
+				groups.get(0).addChild(newSubtractivePrefix);
+				subtractivePrefix.detach();
 			}
 			for (Entry<ChemEl, Integer> entry : unlocantedSubtractivePrefixes.entrySet()) {
 				applyUnlocantedSubtractivePrefixes(state, thisFrag, entry.getKey(), entry.getValue());
@@ -624,8 +627,10 @@ class StructureBuildingMethodsForOutput{
 					}
 				}
 				hydrogenElements.remove(i);
-				// MolLangData: we do not detach the hydrogen element in the xml for the output
-				//hydrogen.detach();
+				// MolLangData: before detaching the hydrogen element, we should move it as a child of the group element
+				Element newHydrogen = hydrogen.copy();
+				groups.get(0).addChild(newHydrogen);
+				hydrogen.detach();
 			}
 		}
 
@@ -634,8 +639,13 @@ class StructureBuildingMethodsForOutput{
 			String locant = unsaturator.getAttributeValue(LOCANT_ATR);
 			int bondOrder = Integer.parseInt(unsaturator.getAttributeValue(VALUE_ATR));
 			if(bondOrder <= 1) {
-				// MolLangData: we do not detach the unsaturator element in the xml for the output
-				//unsaturator.detach();
+				// MolLangData: before detaching the unsaturator element, we should move it as a child of the group element
+				Element newUnsaturator = unsaturator.copy();
+				// if the unsaturator is an "ane", we should not add it as a child of the group element
+				if (!unsaturator.getValue().equals("ane")) {
+					groups.get(0).addChild(newUnsaturator);
+				}
+				unsaturator.detach();
 				continue;
 			}
 			if(locant != null) {
@@ -653,8 +663,13 @@ class StructureBuildingMethodsForOutput{
 				else {
 					FragmentTools.unsaturate(thisFrag.getAtomByLocantOrThrow(locant), bondOrder, thisFrag);
 				}
-				// MolLangData: we do not detach the unsaturator element in the xml for the output
-				//unsaturator.detach();
+				// MolLangData: before detaching the unsaturator element, we should move it as a child of the group element
+				Element newUnsaturator = unsaturator.copy();
+				// if the unsaturator is an "ane", we should not add it as a child of the group element
+				if (!unsaturator.getValue().equals("ane")) {
+					groups.get(0).addChild(newUnsaturator);
+				}
+				unsaturator.detach();
 			}
 		}
 
@@ -677,8 +692,10 @@ class StructureBuildingMethodsForOutput{
 					thisFrag.getAtomByLocantOrThrow(locant).setLambdaConventionValency(Integer.parseInt(heteroatomEl.getAttributeValue(LAMBDA_ATR)));
 				}
 				heteroatoms.remove(heteroatomEl);
-				// MolLangData: we do not detach the heteroatom element in the xml for the output
-				//heteroatomEl.detach();
+				// MolLangData: before detaching the heteroatom element, we should move it as a child of the group element
+				Element newHeteroatom = heteroatomEl.copy();
+				groups.get(0).addChild(newHeteroatom);
+				heteroatomEl.detach();
 			}
 		}
 		
@@ -891,20 +908,26 @@ class StructureBuildingMethodsForOutput{
 				if (bondOrder > 1) {
 					unsaturationBondOrders.add(bondOrder);
 				}
-				// MolLangData: we do not detach the unsaturator element in the xml for the output
-				//currentEl.detach();
+				// MolLangData: before detaching the unsaturator element, we should move it as a child of the group element
+				Element newUnsaturator = currentEl.copy();
+				groups.get(0).addChild(newUnsaturator);
+				currentEl.detach();
 			}
 			else if (elName.equals(HETEROATOM_EL)){
 				heteroatoms.add(currentEl);
-				// MolLangData: we do not detach the heteroatom element in the xml for the output
-				//currentEl.detach();
+				// MolLangData: before detaching the heteroatom element, we should move it as a child of the group element
+				Element newHeteroatom = currentEl.copy();
+				groups.get(0).addChild(newHeteroatom);
+				currentEl.detach();
 			}
 			else if (elName.equals(HYDRO_EL) || 
 				elName.equals(INDICATEDHYDROGEN_EL) ||
 				elName.equals(ADDEDHYDROGEN_EL)){
 				hydrogenElements.add(currentEl);
-				// MolLangData: we do not detach the hydrogen element in the xml for the output
-				//currentEl.detach();
+				// MolLangData: before detaching the hydrogen element, we should move it as a child of the group element
+				Element newHydrogen = currentEl.copy();
+				groups.get(0).addChild(newHydrogen);
+				currentEl.detach();
 			}
 			else if (elName.equals(ISOTOPESPECIFICATION_EL)){
 				isotopeSpecifications.add(currentEl);
@@ -1284,8 +1307,10 @@ class StructureBuildingMethodsForOutput{
 					}
 				}
 			}
-			// MolLangData: we do not detach the isotope specification element in the xml for the output
-			//isotopeSpecification.detach();
+			// MolLangData: before detaching the isotope specification element, we should move it as a child of the fragment element
+			Element newIsotopeSpecification = isotopeSpecification.copy();
+			frag.getTokenEl().addChild(newIsotopeSpecification);
+			isotopeSpecification.detach();
 		}
 	}
 

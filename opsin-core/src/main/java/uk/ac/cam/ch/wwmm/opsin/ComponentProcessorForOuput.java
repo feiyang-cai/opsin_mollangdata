@@ -2757,7 +2757,7 @@ class ComponentProcessorForOutput {
 					Element prev2 = OpsinTools.getPrevious(previous);
 					if (prev2 == null || !prev2.getName().equals(SUBTRACTIVEPREFIX_EL)) {
 						Fragment frag = group.getFrag();
-						StructureBuildingMethods.applySubtractivePrefix(state, frag, ChemEl.O, "2'");
+						StructureBuildingMethodsForOutput.applySubtractivePrefix(state, frag, ChemEl.O, "2'");
 						previous.detach();
 					}
 				}
@@ -2917,10 +2917,12 @@ class ComponentProcessorForOutput {
 						Atom a = hwRing.getAtomByLocantOrThrow(Integer.toString(i));
 						a.setElement(ChemEl.valueOf(specialRingInformation[i]));
 					}
-					// MolLangData: we do not detach the heteroatom element in the xml for the output
-					//for(Element p : heteroatomsToProcess){
-					//	p.detach();
-					//}
+					for(Element p : heteroatomsToProcess){
+						// MolLangData: before detaching the heteroatom element, we should move it as a child of the group element
+						Element newHeteroatom = p.copy();
+						group.addChild(newHeteroatom);
+						p.detach();
+					}
 					heteroatomsToProcess.clear();
 				}
 			}
@@ -2946,8 +2948,13 @@ class ComponentProcessorForOutput {
 				if (heteroatom.getAttribute(LAMBDA_ATR) != null){
 					a.setLambdaConventionValency(Integer.parseInt(heteroatom.getAttributeValue(LAMBDA_ATR)));
 				}
-				// MolLangData: we do not detach the heteroatom element in the xml for the output
-				//heteroatom.detach();
+				// MolLangData: we do detach the heteroatom element in the xml for the output
+				// but, we copy the element to be a child of this group element
+				// set resolved to yes to avoid being passed to resolveSuffixes later
+				heteroatom.addAttribute(new Attribute(RESOLVED_ATR, "yes"));
+				Element newHeteroatom = heteroatom.copy();
+				group.addChild(newHeteroatom);
+				heteroatom.detach();
 				it.remove();
 			}
 			
@@ -3002,8 +3009,13 @@ class ComponentProcessorForOutput {
 					if (heteroatom.getAttribute(LAMBDA_ATR)!=null){
 						a.setLambdaConventionValency(Integer.parseInt(heteroatom.getAttributeValue(LAMBDA_ATR)));
 					}
-					// MolLangData: we do not detach the heteroatom element in the xml for the output
-					//heteroatom.detach();
+					// MolLangData: we do detach the heteroatom element in the xml for the output
+					// but, we copy the element to be a child of this group element
+					// also, we set resolved to yes to avoid being passed to resolveSuffixes later
+					heteroatom.addAttribute(new Attribute(RESOLVED_ATR, "yes"));
+					Element newHeteroatom = heteroatom.copy();
+					group.addChild(newHeteroatom);
+					heteroatom.detach();
 				}
 			}
 			if(name.equals("thithiazol")) {
@@ -3139,8 +3151,8 @@ class ComponentProcessorForOutput {
 				fragmentToResolveAndDuplicate.removeOutAtom(0);
 			}
 
-			StructureBuildingMethods.resolveLocantedFeatures(state, elementToResolve);
-			StructureBuildingMethods.resolveUnLocantedFeatures(state, elementToResolve);
+			StructureBuildingMethodsForOutput.resolveLocantedFeatures(state, elementToResolve);
+			StructureBuildingMethodsForOutput.resolveUnLocantedFeatures(state, elementToResolve);
 
 			group.detach();
 			OpsinTools.insertAfter(multiplier, group);
@@ -3297,27 +3309,32 @@ class ComponentProcessorForOutput {
 				if (polyCyclicSpiros.size()!=1){
 					throw new ComponentGenerationException("Nested polyspiro systems are not supported");
 				}
+				// MolLangData: we support this type of spiro system
 				processNonIdenticalPolyCyclicSpiro(polyCyclicSpiroDescriptor);
 			}
 			else if (value.equals("spiroOldMethod")){
+				// MolLangData: we support this type of spiro system
 				processOldMethodPolyCyclicSpiro(polyCyclicSpiros);
 			}
 			else if (value.equals("spirobi")){
 				if (polyCyclicSpiros.size()!=1){
 					throw new ComponentGenerationException("Nested polyspiro systems are not supported");
 				}
+				// MolLangData: we support this type of spiro system
 				processSpiroBiOrTer(polyCyclicSpiroDescriptor, 2);
 			}
 			else if (value.equals("spiroter")){
 				if (polyCyclicSpiros.size()!=1){
 					throw new ComponentGenerationException("Nested polyspiro systems are not supported");
 				}
+				// MolLangData: we support this type of spiro system
 				processSpiroBiOrTer(polyCyclicSpiroDescriptor, 3);
 			}
 			else if (value.equals("dispiroter")){
 				if (polyCyclicSpiros.size()!=1){
 					throw new ComponentGenerationException("Nested polyspiro systems are not supported");
 				}
+				// MolLangData: we support this type of spiro system
 				processDispiroter(polyCyclicSpiroDescriptor);
 			}
 			else{
@@ -3402,6 +3419,10 @@ class ComponentProcessorForOutput {
 		}
 		resolveFeaturesOntoGroup(firstGroupEls);
 		Set<Atom> spiroAtoms = new HashSet<>();
+		// MolLangData: have a new list to store the copy of the spiroLocant elements, which will be added as children of the new spiroSystem element
+		List<Element> spiroLocantCopies = new ArrayList<>();
+
+
 		for (int i = 1; i < groupCount; i++) {
 			Element nextGroup = groups.get(i);
 			Element spiroLocant = OpsinTools.getNextSibling(groups.get(i - 1), SPIROLOCANT_EL);
@@ -3419,6 +3440,9 @@ class ComponentProcessorForOutput {
 				nextGroupEls.add(subOrRoot.getChild(j));
 			}
 			resolveFeaturesOntoGroup(nextGroupEls);
+
+			// MolLangData: copy the spiroLocant element to the spiroLocantCopies list before detaching it
+			spiroLocantCopies.add(spiroLocant.copy());
 
 			spiroLocant.detach();
 			Fragment nextFragment = nextGroup.getFrag();
@@ -3466,13 +3490,81 @@ class ComponentProcessorForOutput {
 		Element rootGroup = groups.get(groupCount - 1);
 		Fragment rootFrag = rootGroup.getFrag();
 		String name = rootGroup.getValue();
+
+		// MolLangData: have a new spiroSystem element to store the root group's attributes and children
+		Element rootSpiroSystem = new TokenEl(SPIROSYSTEMCOMPONENT_EL);
+		// directly get all attributes
+		List<Attribute> rootAttributes = rootGroup.getAttributes();
+		for (Attribute attribute : rootAttributes) {
+			rootSpiroSystem.addAttribute(new Attribute(attribute));
+		}
+		// directly get all children and use their copy to add as children of the new spiroSystem element
+		List<Element> rootChildren = rootGroup.getChildElements();
+		for (Element child : rootChildren) {
+			rootSpiroSystem.addChild(child.copy()); // MolLangData: use the copy of the child element to add as a child of the new spiroSystem element
+		}
+		// copy the value of the root group to the new spiroSystem element
+		rootSpiroSystem.setValue(rootGroup.getValue());
+
+		// now, we can remove the original children of the root group
+		for (Element child : rootChildren) {
+			child.detach();
+		}
+
+		// MolLangData: have a name list to store the new name of the root group
+		List<String> newNames = new ArrayList<>();
+
 		for (int i = 0; i < groupCount - 1; i++) {
 			Element group = groups.get(i);
 			state.fragManager.incorporateFragment(group.getFrag(), rootFrag);
-			name = group.getValue() + name;
+
+			// MolLangData: before detach the group, we create a new spiroSystemComponent element and add it as a child of the root group
+			Element newSpiroSystemComponent = new TokenEl(SPIROSYSTEMCOMPONENT_EL);
+			// directly get all attributes and children from the original group element
+			List<Attribute> attributes = group.getAttributes();
+			for (Attribute attribute : attributes) {
+				newSpiroSystemComponent.addAttribute(new Attribute(attribute));
+			}
+			List<Element> children = group.getChildElements();
+			for (Element child : children) {
+				newSpiroSystemComponent.addChild(child.copy());
+			}
+			// copy the value of the group to the new spiroSystemComponent element
+			newSpiroSystemComponent.setValue(group.getValue());
+			// MolLangData: add the new spiroSystemComponent element as a child of the root group
+			rootGroup.addChild(newSpiroSystemComponent);
+
+			// MolLangData: add the copy of the spiroLocant element as a child of the root group
+			rootGroup.addChild(spiroLocantCopies.get(i));
+
+			newNames.add(group.getValue());
+
+			//name = group.getValue() + "," + name; // MolLangData: for the new name, we can add a separator between the groups using ","
 			group.detach();
 		}
-		rootGroup.setValue(polyCyclicSpiroDescriptor.getValue() + name);
+
+		// insert the new spiroSystem element at the last position of the root group
+		rootGroup.addChild(rootSpiroSystem);
+
+		// remove the original attributes of the root group, excluding "value", "type", and "subtype"
+		List<Attribute> attributesToRemove = new ArrayList<>();
+		for (Attribute attribute : rootAttributes) {
+			if (!attribute.getName().equals(VALUE_ATR) && !attribute.getName().equals(TYPE_ATR) && !attribute.getName().equals(SUBTYPE_ATR)) {
+				attributesToRemove.add(attribute);
+			}
+		}
+		// rename the type attribute to "spiro system"
+		rootGroup.getAttribute(TYPE_ATR).setValue("spiro system");
+		// rename the subtype attribute to "Polycyclic"
+		rootGroup.getAttribute(SUBTYPE_ATR).setValue("Non-Identical Polycyclic");
+		for (Attribute attribute : attributesToRemove) {
+			rootGroup.removeAttribute(attribute);
+		}
+
+		// set the value of the root group to the new name
+		rootGroup.getAttribute(VALUE_ATR).setValue(polyCyclicSpiroDescriptor.getValue() + ", " + StringTools.stringListToString(newNames, ", ") + ", " + name);
+		rootGroup.setValue(rootGroup.getAttribute(VALUE_ATR).getValue());
+
 		openBracket.detach();
 		closeBracket.detach();
 	}
@@ -3507,12 +3599,17 @@ class ComponentProcessorForOutput {
 			FragmentTools.relabelNumericLocants(parentFrag.getAtomList(), StringTools.multiplyString("'",i+1));
 			elementsToResolve = OpsinTools.getSiblingsUpToElementWithTagName(currentSpiro, POLYCYCLICSPIRO_EL);
 			resolveFeaturesOntoGroup(elementsToResolve);
+
+			// MolLangData: we need to intialize a string list to store the locants
+			List<String> locants = new ArrayList<>();
 			
 			String locant1 =null;
 			Element possibleFirstLocant = OpsinTools.getPreviousSibling(currentSpiro);
 			if (possibleFirstLocant !=null && possibleFirstLocant.getName().equals(LOCANT_EL)){
 				if (possibleFirstLocant.getValue().split(",").length==1){
 					locant1 = possibleFirstLocant.getValue();
+					// MolLangData: add the locant to the locants list
+					locants.add(locant1);
 					possibleFirstLocant.detach();
 				}
 				else{
@@ -3532,6 +3629,8 @@ class ComponentProcessorForOutput {
 					state.addIsAmbiguous("Choice of atom for spiro fusion on: " + previousGroup.getValue());
 				}
 				atomToBeReplaced = potentialAtoms.get(0);
+				// MolLangData: add this atom's locant to the locants list
+				locants.add(atomToBeReplaced.getLocants().get(0));
 			}
 			Atom atomOnParentFrag;
 			String locant2 =null;
@@ -3539,6 +3638,8 @@ class ComponentProcessorForOutput {
 			if (possibleSecondLocant !=null && possibleSecondLocant.getName().equals(LOCANT_EL)){
 				if (possibleSecondLocant.getValue().split(",").length==1){
 					locant2 = possibleSecondLocant.getValue();
+					// MolLangData: add the locant to the locants list
+					locants.add(locant2);
 					possibleSecondLocant.detach();
 				}
 				else{
@@ -3557,6 +3658,8 @@ class ComponentProcessorForOutput {
 					state.addIsAmbiguous("Choice of atom for spiro fusion on: " + nextGroup.getValue());
 				};
 				atomOnParentFrag = potentialAtoms.get(0);
+				// MolLangData: add this atom's locant to the locants list
+				locants.add(atomOnParentFrag.getLocants().get(0));
 			}
 			state.fragManager.replaceAtomWithAnotherAtomPreservingConnectivity(atomToBeReplaced, atomOnParentFrag);
 			if (atomToBeReplaced.hasSpareValency()){
@@ -3566,8 +3669,72 @@ class ComponentProcessorForOutput {
 				atomOnParentFrag.setCharge(atomToBeReplaced.getCharge());
 				atomOnParentFrag.setProtonsExplicitlyAddedOrRemoved(atomToBeReplaced.getProtonsExplicitlyAddedOrRemoved());
 			}
+
+			// MolLangData: we have a new spirosystem component element to store the parent fragment's group (nextGroup) attributes and children, and also the value
+			Element newSpiroSystemComponent = new TokenEl(SPIROSYSTEMCOMPONENT_EL);
+			// directly get all attributes and children from the parent group element
+			List<Attribute> attributes = nextGroup.getAttributes();
+			for (Attribute attribute : attributes) {
+				newSpiroSystemComponent.addAttribute(new Attribute(attribute));
+			}
+			List<Element> children = nextGroup.getChildElements();
+			for (Element child : children) {
+				newSpiroSystemComponent.addChild(child.copy());
+			}
+			// copy the value of the parent group to the new spirosystem component element
+			newSpiroSystemComponent.setValue(nextGroup.getValue());
+			// now, we can remove the children of the original parent fragment's group element
+			for (Element child : children) {
+				child.detach();
+			}
+
+			// MolLangData: create a new spirolocant element and add the list of locants to it
+			Element spirolocant = new TokenEl(SPIROLOCANT_EL);
+			spirolocant.setValue(StringTools.stringListToString(locants, ","));
+
+			// MolLangData: now, we can create a new spirosystem component element to store the previous fragment's group (previousGroup) attributes and children,
+			// and add it as a child of the parent fragment's group element
+			Element newPreviousSpiroSystemComponent = new TokenEl(SPIROSYSTEMCOMPONENT_EL);
+			// directly get all attributes and children from the previous group element, and also the value
+			List<Attribute> previousAttributes = previousGroup.getAttributes();
+			for (Attribute attribute : previousAttributes) {
+				newPreviousSpiroSystemComponent.addAttribute(new Attribute(attribute));
+			}
+			List<Element> previousChildren = previousGroup.getChildElements();
+			for (Element child : previousChildren) {
+				newPreviousSpiroSystemComponent.addChild(child.copy());
+			}
+			// copy the value of the previous group to the new previous spirosystem component element
+			newPreviousSpiroSystemComponent.setValue(previousGroup.getValue());
+
+			// MolLangData: add the new previous spirosystem component element as a child of the parent fragment's group element
+			nextGroup.addChild(newPreviousSpiroSystemComponent);
+			// MolLangData: add the copy of the spiroLocant element as a child of the parent fragment's group element
+			nextGroup.addChild(spirolocant.copy());
+			// MolLangData: add the new spirosystem component element as a child of the parent fragment's group element
+			nextGroup.addChild(newSpiroSystemComponent);
+
 			state.fragManager.incorporateFragment(previousFrag, parentFrag);
-			nextGroup.setValue(previousGroup.getValue() + currentSpiro.getValue() + nextGroup.getValue());
+			// MolLangData: remove the original attributes of the parent fragment's group element, excluding "value", "type", and "subtype"
+			List<Attribute> attributesToRemove = new ArrayList<>();
+			for (Attribute attribute : attributes) {
+				if (!attribute.getName().equals(VALUE_ATR) && !attribute.getName().equals(TYPE_ATR) && !attribute.getName().equals(SUBTYPE_ATR)) {
+					attributesToRemove.add(attribute);
+				}
+			}
+			for (Attribute attribute : attributesToRemove) {
+				nextGroup.removeAttribute(attribute);
+			}
+			// MolLangData: rename the type attribute to "spiro system"
+			nextGroup.getAttribute(TYPE_ATR).setValue("spiro system");
+			// MolLangData: rename the subtype attribute to "Old Method Polycyclic"
+			nextGroup.getAttribute(SUBTYPE_ATR).setValue("Old Method Polycyclic");
+
+			nextGroup.getAttribute(VALUE_ATR).setValue(previousGroup.getValue() + "," + currentSpiro.getValue() + "," + nextGroup.getValue());
+			nextGroup.setValue(nextGroup.getAttribute(VALUE_ATR).getValue());
+
+
+			//nextGroup.setValue(previousGroup.getValue() + currentSpiro.getValue() + nextGroup.getValue());
 			previousGroup.detach();
 		}
 	}
@@ -3583,9 +3750,12 @@ class ComponentProcessorForOutput {
 	private void processSpiroBiOrTer(Element polyCyclicSpiroDescriptor, int components) throws ComponentGenerationException, StructureBuildingException {
 		Element locant = OpsinTools.getPreviousSibling(polyCyclicSpiroDescriptor);
 		String locantText;
+		Element locantForSpiroBi = new TokenEl(LOCANT_EL);
 		if (locant ==null || !locant.getName().equals(LOCANT_EL)){
 			if (components==2){
 				locantText ="1,1'";
+				// MolLangData: create a locant element with the value "1,1'" used for the spirobi info
+				locantForSpiroBi.setValue("1,1'");
 			}
 			else{
 				throw new ComponentGenerationException("Unable to find locant indicating atoms to form polycyclic spiro system!");
@@ -3594,6 +3764,8 @@ class ComponentProcessorForOutput {
 		else{
 			locantText = locant.getValue();
 			locant.detach();
+			// MolLangData: create a locant element with the value of the original locant used for the spirobi info
+			locantForSpiroBi.setValue(locantText);
 		}
 		String[] locants = locantText.split(",");
 		if (locants.length!=components){
@@ -3606,9 +3778,36 @@ class ComponentProcessorForOutput {
 
 		determineFeaturesToResolveInSingleComponentSpiro(polyCyclicSpiroDescriptor);
 		Fragment fragment = group.getFrag();
+
+		// MolLangData: have a new spirosystem element to store the root group's attributes and children
+		Element newSpiroSystem = new TokenEl(SPIROSYSTEMCOMPONENT_EL);
+		// directly get all attributes and children from the original group element, and also the value
+		List<Attribute> attributes = group.getAttributes();
+		for (Attribute attribute : attributes) {
+			newSpiroSystem.addAttribute(new Attribute(attribute));
+		}
+		List<Element> children = group.getChildElements();
+		for (Element child : children) {
+			newSpiroSystem.addChild(child.copy());
+		}
+		newSpiroSystem.setValue(group.getValue());
+		
+		// MolLangData: add the new spiroSystem element as a child of the root group
+		// MolLangData: we need to remove the original children of the root group
+		List<Element> originalChildren = group.getChildElements();
+		for (Element child : originalChildren) {
+			child.detach();
+		}
+		group.addChild(newSpiroSystem);
+
+
 		List<Fragment> clones = new ArrayList<>();
+
 		for (int i = 1; i < components ; i++) {
 			clones.add(state.fragManager.copyAndRelabelFragment(fragment, i));
+
+			// MolLangData: for each clone, add the new spirosystem to the group
+			group.addChild(newSpiroSystem.copy());
 		}
 		
 		Atom atomOnOriginalFragment = fragment.getAtomByLocantOrThrow(locants[0]);
@@ -3639,8 +3838,33 @@ class ComponentProcessorForOutput {
 		for (Fragment clone : clones) {
 			state.fragManager.incorporateFragment(clone, fragment);
 		}
+
+		// MolLangData: we add the locant element to the root group as a child
+		// Do we need to reset this as a spiro locant element for the output?
+		Element spiroLocant = new TokenEl(SPIROLOCANT_EL);
+		spiroLocant.setValue(locantForSpiroBi.getValue());
+		group.addChild(spiroLocant);
+
+		//group.addChild(locantForSpiroBi);
 		
-		group.setValue(polyCyclicSpiroDescriptor.getValue() + group.getValue());
+		// MolLangData: set the value of attribute value of the root group to the new name
+		// also, we remove the original attributes of the root group, excluding "value", "type", and "subtype"
+		//group.setValue(polyCyclicSpiroDescriptor.getValue() + group.getValue());
+		group.getAttribute(VALUE_ATR).setValue(polyCyclicSpiroDescriptor.getValue() + ", " + group.getValue());
+		group.setValue(group.getAttribute(VALUE_ATR).getValue());
+		List<Attribute> attributesToRemove = new ArrayList<>();
+		for (Attribute attribute : attributes) {
+			if (!attribute.getName().equals(VALUE_ATR) && !attribute.getName().equals(TYPE_ATR) && !attribute.getName().equals(SUBTYPE_ATR)) {
+				attributesToRemove.add(attribute);
+			}
+		}
+		// rename the type attribute to "spiro system"
+		group.getAttribute(TYPE_ATR).setValue("spiro system");
+		// rename the subtype attribute to "Bi/Ter"
+		group.getAttribute(SUBTYPE_ATR).setValue("Bi/Ter");
+		for (Attribute attribute : attributesToRemove) {
+			group.removeAttribute(attribute);
+		}
 	}
 
 	/**
@@ -3660,13 +3884,48 @@ class ComponentProcessorForOutput {
 		}
 		determineFeaturesToResolveInSingleComponentSpiro(polyCyclicSpiroDescriptor);
 		Fragment fragment = group.getFrag();
+
+		// MolLangData: have a new spirosystem element to store the root group's attributes and children
+		Element newSpiroSystem = new TokenEl(SPIROSYSTEMCOMPONENT_EL);
+		// directly get all attributes and children from the original group element, and also the value
+		List<Attribute> attributes = group.getAttributes();
+		for (Attribute attribute : attributes) {
+			newSpiroSystem.addAttribute(new Attribute(attribute));
+		}
+		List<Element> children = group.getChildElements();
+		for (Element child : children) {
+			newSpiroSystem.addChild(child.copy());
+		}
+		newSpiroSystem.setValue(group.getValue());
+		
+		// MolLangData: add the new spiroSystem element as a child of the root group
+		// MolLangData: we need to remove the original children of the root group
+		List<Element> originalChildren = group.getChildElements();
+		for (Element child : originalChildren) {
+			child.detach();
+		}
+		group.addChild(newSpiroSystem);
+
+
 		List<Fragment> clones = new ArrayList<>();
 		for (int i = 1; i < 3 ; i++) {
 			clones.add(state.fragManager.copyAndRelabelFragment(fragment, i));
+
+			// MolLangData: for each clone, add the new spirosystem to the group
+			group.addChild(newSpiroSystem.copy());
+
 		}
 		for (Fragment clone : clones) {
 			state.fragManager.incorporateFragment(clone, fragment);
 		}
+
+		// MolLangData: we add the locant element to the root group as a child
+		// Do we need to reset this as a spiro locant element for the output?
+		Element spiroLocant = new TokenEl(SPIROLOCANT_EL);
+		spiroLocant.setValue(value);
+		group.addChild(spiroLocant);
+
+
 		String[] locants1 = locants[0].split(",");
 		Atom atomOnLessPrimedFragment = fragment.getAtomByLocantOrThrow(fixLocantCapitalisation(locants1[0]));
 		Atom atomToBeReplaced = fragment.getAtomByLocantOrThrow(fixLocantCapitalisation(locants1[1]));
@@ -3683,7 +3942,23 @@ class ComponentProcessorForOutput {
 			atomOnLessPrimedFragment.setSpareValency(true);
 		}
 
-		group.setValue("dispiroter" + group.getValue());
+		// MolLangData: set the value of attribute value of the root group to the new name
+		// also, we remove the original attributes of the root group, excluding "value", "type", and "subtype"
+		//group.setValue(polyCyclicSpiroDescriptor.getValue() + group.getValue());
+		group.setValue("dispiroter" + ", " +group.getValue());
+		List<Attribute> attributesToRemove = new ArrayList<>();
+		for (Attribute attribute : attributes) {
+			if (!attribute.getName().equals(VALUE_ATR) && !attribute.getName().equals(TYPE_ATR) && !attribute.getName().equals(SUBTYPE_ATR)) {
+				attributesToRemove.add(attribute);
+			}
+		}
+		// rename the type attribute to "spiro system"
+		group.getAttribute(TYPE_ATR).setValue("spiro system");
+		// rename the subtype attribute to "Dispiroter"
+		group.getAttribute(SUBTYPE_ATR).setValue("Dispiroter");
+		for (Attribute attribute : attributesToRemove) {
+			group.removeAttribute(attribute);
+		}
 	}
 
 	/**
@@ -3755,15 +4030,15 @@ class ComponentProcessorForOutput {
 		if (!suffixes.isEmpty()){
 			suffixApplier.resolveSuffixes(group, suffixes);
 			for (Element suffix : suffixes) {
-				// MolLangData: we do not detach the suffix element in the xml for the output
-				// set resolved to yes to avoid being passed to resolveSuffixes later
-				suffix.addAttribute(new Attribute(RESOLVED_ATR, "yes"));
-				//suffix.detach();
+				// MolLangData: before detaching the suffix element, we should move it as a child of the group element
+				Element newSuffix = suffix.copy();
+				group.addChild(newSuffix);
+				suffix.detach();
 			}
 		}
 		if (substituentToResolve.getChildCount() != 0){
-			StructureBuildingMethods.resolveLocantedFeatures(state, substituentToResolve);
-			StructureBuildingMethods.resolveUnLocantedFeatures(state, substituentToResolve);
+			StructureBuildingMethodsForOutput.resolveLocantedFeatures(state, substituentToResolve);
+			StructureBuildingMethodsForOutput.resolveUnLocantedFeatures(state, substituentToResolve);
 			List<Element> children = substituentToResolve.getChildElements();
 			for (int i = children.size() -1; i>=0; i--) {
 				Element child = children.get(i);
@@ -3861,7 +4136,7 @@ class ComponentProcessorForOutput {
 						bridgeFrag.getOutAtom(0).setLocant(locantArray[0]);
 						bridgeFrag.getOutAtom(1).setLocant(locantArray[1]);
 					}
-					ringAtoms = StructureBuildingMethods.formEpoxide(state, bridgeFrag, ringFrag.getDefaultInAtomOrFirstAtom());
+					ringAtoms = StructureBuildingMethodsForOutput.formEpoxide(state, bridgeFrag, ringFrag.getDefaultInAtomOrFirstAtom());
 				}
 				else{
 					List<Atom> possibleAtoms = FragmentTools.findSubstituableAtoms(ringFrag, 1);
@@ -3871,7 +4146,7 @@ class ComponentProcessorForOutput {
 					if (AmbiguityChecker.isSubstitutionAmbiguous(possibleAtoms, 1)) {
 						state.addIsAmbiguous("Addition of bridge to: " + groupEl.getValue());
 					}
-					ringAtoms = StructureBuildingMethods.formEpoxide(state, bridgeFrag, possibleAtoms.get(0));
+					ringAtoms = StructureBuildingMethodsForOutput.formEpoxide(state, bridgeFrag, possibleAtoms.get(0));
 				}
 				bridgeToRingAtoms.put(bridgeFrag, ringAtoms);
 				state.fragManager.incorporateFragment(bridgeFrag, ringFrag);
@@ -4264,7 +4539,7 @@ class ComponentProcessorForOutput {
 			//being not substitutable doesn't mean it can't form additive bonds cf. oxy. Additive bonds can still benefit from implicit bracketing
 			boolean isSubstitutable = false;
 			for (Atom atom : frag) {
-				if (StructureBuildingMethods.calculateSubstitutableHydrogenAtoms(atom) > 0){
+				if (StructureBuildingMethodsForOutput.calculateSubstitutableHydrogenAtoms(atom) > 0){
 					isSubstitutable = true;
 					break;
 				}

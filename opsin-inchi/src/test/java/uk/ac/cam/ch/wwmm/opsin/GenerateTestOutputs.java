@@ -23,8 +23,6 @@ public class GenerateTestOutputs {
 		
 		// Initialize OPSIN
 		NameToStructure n2s = NameToStructure.getInstance();
-		NameToStructureConfig n2sConfig = NameToStructureConfig.getDefaultConfigInstance();
-		n2sConfig.setAllowRadicals(true);
 		
 		// Get the resources directory
 		File resourcesDir = null;
@@ -126,8 +124,8 @@ public class GenerateTestOutputs {
 					caseNumber++;
 					totalTestCases++;
 					
-					// Parse the chemical name
-					OpsinResult result = n2s.parseChemicalName(chemicalName, n2sConfig);
+					// Parse the chemical name (using default configuration)
+					OpsinResult result = n2s.parseChemicalName(chemicalName);
 					
 					// Create output file for this test case
 					String outputFileName = String.format("%04d_%s.txt", caseNumber, sanitizeFileName(chemicalName));

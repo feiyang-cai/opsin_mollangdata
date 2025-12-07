@@ -15,13 +15,14 @@ import java.util.regex.Pattern;
 import static uk.ac.cam.ch.wwmm.opsin.XmlDeclarations.*;
 import static uk.ac.cam.ch.wwmm.opsin.OpsinTools.*;
 
-/**Does destructive procedural parsing on parser results.
+/**Does destructive procedural parsing on outputParse results.
+ * This is a separate generator for outputParse that does not modify the original parse.
  *
  * @author ptc24
  * @author dl387
  *
  */
-class ComponentGenerator {
+class ComponentGeneratorForOutput {
 
 	/**
 	 * Sort bridges such as the highest priority secondary bridges come first
@@ -93,7 +94,7 @@ class ComponentGenerator {
 
 	private final BuildState buildState;
 
-	ComponentGenerator(BuildState buildState) {
+	ComponentGeneratorForOutput(BuildState buildState) {
 		this.buildState = buildState;
 	}
 
@@ -1930,6 +1931,10 @@ class ComponentGenerator {
 		if(previous != null) {
 			String previousElType = previous.getName();
 			if(previousElType.equals(SPIRO_EL)){
+				// MolLangData warning: we do not support this type of spirio rings, like "dispiro[5.1.7.2]heptadecane" or "pentaspiro[2.0.24.0.27.0.210.0.213.03]pentadecane"
+				// The former one is not hard, but the later one, we are having a hard time to support it.
+				// Please carefully check the results.
+				buildState.addWarning(OpsinWarning.OpsinWarningType.MolLangData_NOT_SUPPORTED_NOMENCLATURE, "MolLangData does not support this type of spirio rings, please carefully check the results.");
 				processSpiroSystem(group, previous);
 			} else if(previousElType.equals(VONBAEYER_EL)) {
 				processVonBaeyerSystem(group, previous);
@@ -1998,7 +2003,9 @@ class ComponentGenerator {
 
 		int numOfOpenedBrackets = 1;
 		int curIndex = 2;
+
 		String smiles = "C0" + StringTools.multiplyString("C", spiroBridges.get(0).getChainLength()) + "10(";
+
 
 		// for those molecules where no superstrings compare prefix number with curIndex.
 		for (int i = 1; i < spiroBridges.size(); i++) {
@@ -2022,6 +2029,8 @@ class ComponentGenerator {
 
 					// add ring in new brackets
 					smiles += "(" + StringTools.multiplyString("C", spiroBridge.getChainLength()) + ringClosure(curIndex) + ")";
+
+
 					curIndex++;
 				}
 				else {

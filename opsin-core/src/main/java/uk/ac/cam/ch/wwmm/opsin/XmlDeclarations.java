@@ -57,6 +57,9 @@ class XmlDeclarations {
 	/**A fused child ring element containing fusion information*/
 	static final String FUSEDCHILDRING_EL ="fusedChildRing";
 
+	/**A spiro system component element containing spiro information*/
+	static final String SPIROSYSTEMCOMPONENT_EL ="spiroSystemComponent";
+
 	/**An O that indicates that the preceding alkaneStem is in fact a bridge*/
 	static final String BRIDGEFORMINGO_EL ="bridgeFormingO";
 

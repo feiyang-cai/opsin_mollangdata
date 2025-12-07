@@ -533,7 +533,8 @@ class OpsinTools {
 		Element previous = parent.getChild(i - 1);
 		String elName = previous.getName();
 		for (String namesToIgnore : elNamesToIgnore) {
-			if (elName.equals(namesToIgnore)){
+			// mollangdata: if the element is resolved, we also should call this method recursively
+			if (elName.equals(namesToIgnore) || "yes".equals(previous.getAttributeValue(RESOLVED_ATR))){
 				return getPreviousSiblingIgnoringCertainElements(previous, elNamesToIgnore);
 			}
 		}

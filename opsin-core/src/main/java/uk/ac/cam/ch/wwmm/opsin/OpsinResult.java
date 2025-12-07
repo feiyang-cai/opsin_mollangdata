@@ -23,6 +23,11 @@ public class OpsinResult {
 	private final List<OpsinWarning> warnings;
 	private final String parseXml;
 	private final String outputXml;
+	private final OPSIN_RESULT_STATUS outputStatus;
+	private final String outputMessage;
+	private final List<OpsinWarning> outputWarnings;
+	private final Fragment outputStructure;
+	private final String outputReasonForFailure;
 
 	/**
 	 * Whether parsing the chemical name was successful, encountered problems or was unsuccessful.<br>
@@ -48,8 +53,47 @@ public class OpsinResult {
 	}
 	
 	OpsinResult(Fragment frag, OPSIN_RESULT_STATUS status, List<OpsinWarning> warnings, String chemicalName, String parseXml, String outputXml) {
+		this(frag, status, warnings, null, OPSIN_RESULT_STATUS.SUCCESS, Collections.emptyList(), "", chemicalName, parseXml, outputXml);
+	}
+
+	OpsinResult(Fragment frag, OPSIN_RESULT_STATUS status, String message, String chemicalName, String parseXml, String outputXml) {
+		this(frag, status, message, null, OPSIN_RESULT_STATUS.SUCCESS, "", "", chemicalName, parseXml, outputXml);
+	}
+
+	OpsinResult(Fragment frag, OPSIN_RESULT_STATUS status, List<OpsinWarning> warnings, Fragment outputFrag, OPSIN_RESULT_STATUS outputStatus, List<OpsinWarning> outputWarnings, String outputReasonForFailure, String chemicalName, String parseXml, String outputXml) {
 		this.structure = frag;
 		this.status = status;
+		this.message = buildMessageFromWarnings(warnings);
+		this.chemicalName = chemicalName;
+		this.warnings = warnings;
+		this.parseXml = parseXml;
+		this.outputXml = outputXml;
+		this.outputStatus = outputStatus;
+		this.outputWarnings = outputWarnings;
+		this.outputMessage = buildMessageFromWarnings(outputWarnings);
+		this.outputStructure = outputFrag;
+		this.outputReasonForFailure = outputReasonForFailure;
+	}
+
+	OpsinResult(Fragment frag, OPSIN_RESULT_STATUS status, String message, Fragment outputFrag, OPSIN_RESULT_STATUS outputStatus, String outputMessage, String outputReasonForFailure, String chemicalName, String parseXml, String outputXml) {
+		this.structure = frag;
+		this.status = status;
+		this.message = message;
+		this.chemicalName = chemicalName;
+		this.warnings = Collections.emptyList();
+		this.parseXml = parseXml;
+		this.outputXml = outputXml;
+		this.outputStatus = outputStatus;
+		this.outputWarnings = Collections.emptyList();
+		this.outputMessage = outputMessage;
+		this.outputStructure = outputFrag;
+		this.outputReasonForFailure = outputReasonForFailure;
+	}
+
+	private static String buildMessageFromWarnings(List<OpsinWarning> warnings) {
+		if (warnings.isEmpty()) {
+			return "";
+		}
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0, l = warnings.size(); i < l; i++) {
 			OpsinWarning warning = warnings.get(i);
@@ -60,21 +104,7 @@ public class OpsinResult {
 				sb.append("; ");
 			}
 		}
-		this.message = sb.toString();
-		this.chemicalName = chemicalName;
-		this.warnings = warnings;
-		this.parseXml = parseXml;
-		this.outputXml = outputXml;
-	}
-
-	OpsinResult(Fragment frag, OPSIN_RESULT_STATUS status, String message, String chemicalName, String parseXml, String outputXml) {
-		this.structure = frag;
-		this.status = status;
-		this.message = message;
-		this.chemicalName = chemicalName;
-		this.warnings = Collections.emptyList();
-		this.parseXml = parseXml;
-		this.outputXml = outputXml;
+		return sb.toString();
 	}
 
 	Fragment getStructure() {
@@ -249,6 +279,49 @@ public class OpsinResult {
 	 */
 	public String getOutputXml() {
 		return outputXml;
+	}
+
+	/**
+	 * Returns the status for the output state processing
+	 * @return {@link OPSIN_RESULT_STATUS} status for output processing
+	 */
+	public OPSIN_RESULT_STATUS getOutputStatus() {
+		return outputStatus;
+	}
+
+	/**
+	 * Returns a message explaining problems encountered during output processing
+	 * This string will be blank when no problems were encountered
+	 * @return String explaining problems encountered during output processing
+	 */
+	public String getOutputMessage() {
+		return outputMessage;
+	}
+
+	/**
+	 * A list of warnings encountered during output processing when the result was {@link OPSIN_RESULT_STATUS#WARNING}<br>
+	 * This list of warnings is immutable
+	 * @return A list of {@link OpsinWarning} from output processing
+	 */
+	public List<OpsinWarning> getOutputWarnings() {
+		return Collections.unmodifiableList(outputWarnings);
+	}
+
+	/**
+	 * Returns the fragment structure generated from outputParse processing
+	 * @return Fragment from output processing, or null if output processing failed or was not performed
+	 */
+	public Fragment getOutputStructure() {
+		return outputStructure;
+	}
+
+	/**
+	 * Returns the reason for failure during output processing
+	 * This string will be blank when no failure occurred
+	 * @return String explaining why output processing failed
+	 */
+	public String getOutputReasonForFailure() {
+		return outputReasonForFailure;
 	}
 
 }

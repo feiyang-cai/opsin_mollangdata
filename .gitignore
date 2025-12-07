@@ -3,4 +3,4 @@ opsin-cli/src/main/java/dl/
 .classpath
 .project
 .settings
-opsin-inchi/test_outputs/
+test_outputs/

@@ -35,6 +35,37 @@ public class ExampleGetSmilesAndXml {
 
 		//String chemicalName = "erythro 2,3-butanediol";
 		//String chemicalName = "2-deoxy-D-erythro-pentose";
+		
+		// spiro system test
+		// String chemicalName = "(2R,4S,4aS)-rel-11-fluoro-2,4-dimethyl-8-(methylsulfinyl)-1,2,4,4a-tetrahydro-2′H,6H-spiro[1,4-oxazino[4,3-a][1,2]oxazolo[4,5-g]quinoline-5,5′-pyrimidine]-2′,4′,6′(1′H,3′H)-trione";
+
+
+		//String chemicalName = "dispiro[5.1.7.2]heptadecane";
+		//String chemicalName = "pentaspiro[2.0.24.0.27.0.210.0.213.03]pentadecane";
+		//String chemicalName = "spiro[3.4]octane";
+		//String chemicalName = "dispiro[fluorene-9,1'-cyclohexane-4',1''-indene]";
+		//String chemicalName = "1,1'-spirobiindene";
+		//String chemicalName = "5lambda7,5',5''-spiroter[benzo[b]phosphindol]-5-ide";
+		// This is important, please carefully check the results.
+		//String chemicalName = "3,3':6',6''-dispiroter[bicyclo[3.1.0]hexane]";// bridge and spiro system
+		//String chemicalName = "bicyclo[3.1.0]hexane";
+		//String chemicalName = "cyclopentanespirocyclobutane";
+		//String chemicalName = "hexahydroazepinium-1-spiro-1'-imidazolidine-3'-spiro-1''-piperidinium dibromide";
+		//String chemicalName = "cyclopentanespirocyclobutane";
+		//String chemicalName = "2-cyclohexenespiro-(2'-cyclopentene)";
+		//String chemicalName = "dispiro[5.1.7.2]heptadecane";
+		//String chemicalName = "spiro[3.4]octane";
+		//String chemicalName = "spiro[4.5]deca-1,6-diene";
+		//String chemicalName = "spiro[4.5]deca-1,6-dien-2-yl";
+		//String chemicalName = "5lambda^5,5'-spirobi[benzo[b]phosphindol]-5-ylium";
+		//String chemicalName = "1H-2lambda5-spiro[isoquinoline-2,2'-pyrido[1,2-a]pyrazin]-2-ylium";
+
+		// fused / bridge system test
+		String chemicalName = "cyclopenta[1,2-b:5,1-b']bis[1,4]oxathiine";
+
+
+
+		//String chemicalName = "1,4-oxazino[4,3-a][1,2]oxazolo[4,5-g]quinoline";
 
 
 		//Hydro test
@@ -64,12 +95,13 @@ public class ExampleGetSmilesAndXml {
 		//String chemicalName = "1,3-oxazol-2-one";
 		//String chemicalName = "2H-1,2,3-triazole";
 		//String chemicalName = "2H-oxepine";
+		//String chemicalName = "oxazole";
 
 		// additive suffix test
 		//String chemicalName = "methylsulfonamidobenzene";
 
 		// conjunctive suffix test
-		String chemicalName = "benzenemethanol";
+		//String chemicalName = "benzenemethanol";
 
 		// aric acid test
 		//String chemicalName = "2-hydroxyglutaric acid";
@@ -98,11 +130,43 @@ public class ExampleGetSmilesAndXml {
 			OpsinResult result = n2s.parseChemicalName(chemicalName);
 			
 			// Display results
-			System.out.println("\nStatus: " + result.getStatus());
+			System.out.println("\nParse Status: " + result.getStatus());
+			System.out.println("Output Status: " + result.getOutputStatus());
 			
-			if (result.getStatus() == OpsinResult.OPSIN_RESULT_STATUS.SUCCESS) {
+			// Display warnings if any
+			if (!result.getWarnings().isEmpty()) {
+				System.out.println("\nParse Warnings:");
+				for (OpsinWarning warning : result.getWarnings()) {
+					System.out.println("  - " + warning.getType() + ": " + warning.getMessage());
+				}
+			}
+			
+			if (!result.getOutputWarnings().isEmpty()) {
+				System.out.println("\nOutput Warnings:");
+				for (OpsinWarning warning : result.getOutputWarnings()) {
+					System.out.println("  - " + warning.getType() + ": " + warning.getMessage());
+				}
+			}
+			
+			if (result.getStatus() == OpsinResult.OPSIN_RESULT_STATUS.SUCCESS || 
+				result.getStatus() == OpsinResult.OPSIN_RESULT_STATUS.WARNING) {
 				String smiles = result.getSmiles();
-				System.out.println("\nSMILES: " + smiles);
+				System.out.println("\nParse SMILES: " + smiles);
+				
+				// Get output SMILES if available
+				if (result.getOutputStructure() != null) {
+					try {
+						String outputSmiles = SMILESWriter.generateSmiles(result.getOutputStructure(), SmilesOptions.DEFAULT);
+						System.out.println("Output SMILES: " + outputSmiles);
+					} catch (Exception e) {
+						System.out.println("Output SMILES generation failed: " + e.getMessage());
+					}
+				} else {
+					System.out.println("Output SMILES: Not available (output processing failed or not performed)");
+					if (result.getOutputStatus() == OpsinResult.OPSIN_RESULT_STATUS.FAILURE) {
+						System.out.println("  Reason: " + result.getOutputReasonForFailure());
+					}
+				}
 				
 				// Get XML directly from OpsinResult
 				String parseXml = result.getParseXml();
