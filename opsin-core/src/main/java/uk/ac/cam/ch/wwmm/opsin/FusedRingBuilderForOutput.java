@@ -246,16 +246,16 @@ class FusedRingBuilderForOutput {
 		}
 
 		// MolLangData: Create snapshots of labels and atoms before fusion
-		Map<Atom, String> parentRingAtomToLabel = createAtomToLabelSnapshot(parentRing);
+		//Map<Atom, String> parentRingAtomToLabel = createAtomToLabelSnapshot(parentRing);
 		// Have a list of mapping of all the componentsFragment to their atomToLabel snapshot
-		List<Map<Atom, String>> componentFragmentsAtomToLabel = new ArrayList<>();
+		//List<Map<Atom, String>> componentFragmentsAtomToLabel = new ArrayList<>();
 
 		for (Fragment ring : componentFragments) {
-			Map<Atom, String> componentFragmentAtomToLabel = createAtomToLabelSnapshot(ring);
+			//Map<Atom, String> componentFragmentAtomToLabel = createAtomToLabelSnapshot(ring);
 			state.fragManager.incorporateFragment(ring, parentRing);
-			updateSnapshotWithAtomReplacements(parentRingAtomToLabel, atomsToRemoveToReplacementAtom);
-			updateSnapshotWithAtomReplacements(componentFragmentAtomToLabel, atomsToRemoveToReplacementAtom);
-			componentFragmentsAtomToLabel.add(componentFragmentAtomToLabel);
+			//updateSnapshotWithAtomReplacements(parentRingAtomToLabel, atomsToRemoveToReplacementAtom);
+			//updateSnapshotWithAtomReplacements(componentFragmentAtomToLabel, atomsToRemoveToReplacementAtom);
+			//componentFragmentsAtomToLabel.add(componentFragmentAtomToLabel);
 		}
 		
 		// MolLangData: Update atomToOriginalLabels to map removed atoms to their replacement atoms
@@ -273,7 +273,7 @@ class FusedRingBuilderForOutput {
 		FusedRingNumberer.numberFusedRing(parentRing);//numbers the fused ring;
 		
 		// MolLangData: create a fusedRingNumbering element to store the numbering information
-		createFusedRingNumberingElement(parentRing, parentRingAtomToLabel, componentFragmentsAtomToLabel);
+		//createFusedRingNumberingElement(parentRing, parentRingAtomToLabel, componentFragmentsAtomToLabel);
 
 		StringBuilder fusedRingName = new StringBuilder();
 		for (Element element : nameComponents) {
@@ -283,7 +283,7 @@ class FusedRingBuilderForOutput {
 
 		Element fusedRingEl =lastGroup;//reuse this element to save having to remap suffixes...
 
-
+		/*
 		// MolLangData: we copy the original tokenEl to a new fusedChildRing element, and add it at the first position of the parent ring tokenEl
 		List<Attribute> allAttributes = fusedRingEl.getAttributes();
 		// Create a new fusedChildRing element
@@ -296,9 +296,11 @@ class FusedRingBuilderForOutput {
 		}
 		// insert the new fusedChildRing element at the first position of the parent ring tokenEl
 		fusedRingEl.insertChild(fusedChildRingEl, 0);
+		*/
 
 		fusedRingEl.getAttribute(VALUE_ATR).setValue(fusedRingName.toString()); //MolLangData Comment: this is original code, set the value of the fused ring as the original tokenEl value
 
+		/* 
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		for (Attribute attribute : allAttributes) {
 			if (!attribute.getName().equals(VALUE_ATR) && !attribute.getName().equals(TYPE_ATR) && !attribute.getName().equals(SUBTYPE_ATR)) {
@@ -308,6 +310,7 @@ class FusedRingBuilderForOutput {
 		for (Attribute attribute : attributesToRemove) {
 			fusedRingEl.removeAttribute(attribute);
 		}
+		*/
 		fusedRingEl.getAttribute(TYPE_ATR).setValue(RING_TYPE_VAL);
 		fusedRingEl.setValue(fusedRingName.toString());
 
@@ -355,6 +358,9 @@ class FusedRingBuilderForOutput {
                     }
                 }
                 if (group.getAttribute(FUSEDRINGNUMBERING_ATR) != null) {
+					// MolLangData: have a debug warning here, we have no idea what is this for, we should take care when this is happening
+					state.addWarning(OpsinWarning.OpsinWarningType.MolLangData_DEBUG_WARNING, "MolLangData does not know when the code can run into this situation for this fused ring numbering; please report this issue to the developers");
+
                     String[] standardNumbering = group.getAttributeValue(FUSEDRINGNUMBERING_ATR).split("/", -1);
                     for (int j = 0; j < standardNumbering.length; j++) {
                         atomList.get(j).replaceLocants(standardNumbering[j]);
@@ -383,6 +389,9 @@ class FusedRingBuilderForOutput {
 			if (unsaturators.size()>0){
 				Element unsaturator = unsaturators.get(0);
 				if (unsaturator.getAttribute(LOCANT_ATR)==null && unsaturator.getAttributeValue(VALUE_ATR).equals("2")){
+					// MolLangData: have a debug warning here, we have no idea what is this for, we should take care when this is happening
+					state.addWarning(OpsinWarning.OpsinWarningType.MolLangData_DEBUG_WARNING, "MolLangData does not know when the code can run into this situation for this unsaturator; please report this issue to the developers");
+
 					unsaturator.detach();
 					List<Bond> bondsToUnsaturate = StructureBuildingMethods.findBondsToUnSaturate(ring, 2, true);
 					if (bondsToUnsaturate.isEmpty()) {
@@ -408,6 +417,8 @@ class FusedRingBuilderForOutput {
 		Element next = OpsinTools.getNextSibling(cyclicAlkaneGroup);
 		List<Element> unsaturators = new ArrayList<>();
 		while (next!=null && next.getName().equals(UNSATURATOR_EL)){
+			// MolLangData: we should have a debug warning here, we should take care when this is happening
+			state.addWarning(OpsinWarning.OpsinWarningType.MolLangData_DEBUG_WARNING, "MolLangData does not know when the code can run into this situation for this unsaturator; please report this issue to the developers");
 			unsaturators.add(next);
 			next = OpsinTools.getNextSibling(next);
 		}
@@ -472,6 +483,8 @@ class FusedRingBuilderForOutput {
 				int multiplier = 1;
 				Element possibleMultiplierEl = OpsinTools.getPreviousSibling(nameComponents.get(i));
 				if (possibleMultiplierEl != null && possibleMultiplierEl.getName().equals(MULTIPLIER_EL)){
+					// MolLangData: we should have a debug warning here, we should take care when this is happening
+					state.addWarning(OpsinWarning.OpsinWarningType.MolLangData_DEBUG_WARNING, "MolLangData does not know when the code can run into this situation for this multiplier; please report this issue to the developers");
 					multiplier = Integer.parseInt(possibleMultiplierEl.getAttributeValue(VALUE_ATR));
 					possibleMultiplierEl.detach();
 				}
@@ -529,8 +542,11 @@ class FusedRingBuilderForOutput {
 						performSimpleFusion(fusionDescriptor, component, parentToUse);
 					}
 					else{
+						// MolLangData: we should have a debug warning here, we should take care when this is happening
+						state.addWarning(OpsinWarning.OpsinWarningType.MolLangData_DEBUG_WARNING, "MolLangData does not know when the code can run into this situation for this higher order fusion; please report this issue to the developers");
 						performHigherOrderFusion(fusionDescriptor, component, parentToUse);
 					}
+					// MolLangData TODO: we should merge the same component into a single
 				}
 				previousFusionLevelFragments = fusionComponents;
 				componentFragments.addAll(fusionComponents);
@@ -762,7 +778,7 @@ class FusedRingBuilderForOutput {
 		}
 		fuseRings(childAtoms, parentAtoms);
 		// MolLangData: merge the child ring tokenEl to the parent ring tokenEl by creating a FusedChildRing element
-		mergeChildRingTokenElToParentRingTokenEl(childRing, parentRing, childAtoms, parentAtoms);
+		// mergeChildRingTokenElToParentRingTokenEl(childRing, parentRing, childAtoms, parentAtoms);
 	}
 	
 	/**
@@ -775,12 +791,19 @@ class FusedRingBuilderForOutput {
 	 * @throws StructureBuildingException
 	 */
 	private void mergeChildRingTokenElToParentRingTokenEl(Fragment childRing, Fragment parentRing, List<Atom> childAtoms, List<Atom> parentAtoms) throws StructureBuildingException {
+		// MolLangData: directly raise an exception here, because this is deprecated and should not be used
+		throw new UnsupportedOperationException("mergeChildRingTokenElToParentRingTokenEl is deprecated and should not be used");
+		
+		/* 
 		Element childRingTokenEl = childRing.getTokenEl();
 		Element parentRingTokenEl = parentRing.getTokenEl();
 		
 		if (childRingTokenEl == null || parentRingTokenEl == null) {
 			return; // Cannot merge if tokenEls are not available
 		}
+		// create a new FusedChildRing to store the 
+
+
 		
 		// Get atom lists in the order they appear in atomMapFromId (which corresponds to labels order)
 		List<Atom> childAtomList = childRing.getAtomList();
@@ -834,32 +857,14 @@ class FusedRingBuilderForOutput {
 			fusedChildRingEl.addChild(copiedChild);
 		}
 		
-		/*
-		// Add fusion information as attributes
-		StringBuilder fusedChildLabelsStr = new StringBuilder();
-		for (int i = 0; i < fusedChildLabels.size(); i++) {
-			if (i > 0) {
-				fusedChildLabelsStr.append(",");
-			}
-			fusedChildLabelsStr.append(fusedChildLabels.get(i));
-		}
-		
-		StringBuilder fusedParentLabelsStr = new StringBuilder();
-		for (int i = 0; i < fusedParentLabels.size(); i++) {
-			if (i > 0) {
-				fusedParentLabelsStr.append(",");
-			}
-			fusedParentLabelsStr.append(fusedParentLabels.get(i));
-		}
-		*/
-
-		
 		//fusedChildRingEl.addAttribute(new Attribute("fusedChildLabels", fusedChildLabelsStr.toString()));
 		//fusedChildRingEl.addAttribute(new Attribute("fusedParentLabels", fusedParentLabelsStr.toString()));
 		
 		// Insert FusedChildRing element after parentRing tokenEl
 		// Directly combine the parentRing tokenEl and the fusedChildRingEl
 		parentRingTokenEl.addChild(fusedChildRingEl);
+
+		*/
 	}
 	
 	/**
