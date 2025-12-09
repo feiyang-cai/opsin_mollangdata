@@ -26,7 +26,8 @@ public class ExampleGetSmilesAndXml {
 		//String chemicalName = "(3E)-3-methyl-N-[(3Z)-2-methylpenta-1,3-dien-3-yl]hexa-3,5-dien-2-imine";
 		//String chemicalName = "spiro-9,9'-bifluoren";
 		//String chemicalName = "2-phenyl-3,4-dihydro-2H-1-benzopyran";
-		String chemicalName = "2-benzopyran";
+		//String chemicalName = "2-benzopyran";
+		String chemicalName = "(6aR,11aR)-6a,11a-dihydro-6H-[1]benzofuro[3,2-c]chromene";
 
 		// different stereochemistry cases
 

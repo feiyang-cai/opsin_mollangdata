@@ -1251,7 +1251,6 @@ class FusedRingBuilderForOutput {
 							atom.setElement(ChemEl.C);
 						}
 
-						/*
 
 						// MolLangData: we need to move the heteroatom element from the children of the fusedChildRing element to the children of the parent ring tokenEl
 						// MolLangData: we need to have a list of heteroatoms to process
@@ -1260,7 +1259,7 @@ class FusedRingBuilderForOutput {
 						// MolLangData: get the atom list from the benzoEl
 						List<Atom> benzoAtomList = benzoEl.getFrag().getAtomList();
 
-						List<Element> parentRingChildren = parentRing.getTokenEl().getChildElements();
+						List<Element> parentRingChildren = fusedRing.getTokenEl().getChildElements();
 						List<Element> fusedChildRingElements = new ArrayList<>();
 						for (Element child : parentRingChildren) {
 							if (child.getName().equals(FUSEDCHILDRING_EL)) {
@@ -1293,41 +1292,41 @@ class FusedRingBuilderForOutput {
 						}
 
 						// the sum of the lengths of the two lists should be equal to the number of heteroatoms
-						if (parentRingHeteroatomsToProcess.size() + benzoHeteroatomsToProcess.size() != heteroatoms.size()) {
+						// it is possible that the two lists are empty, in which the heteroatoms are directly defined in the default name, instead of being defined using the heteroatom element
+						if (parentRingHeteroatomsToProcess.size() + benzoHeteroatomsToProcess.size() != heteroatoms.size() && parentRingHeteroatomsToProcess.size() != 0 && benzoHeteroatomsToProcess.size() != 0) {
 							throw new StructureBuildingException("MolLangData Bug: The sum of the lengths of the two lists of heteroatoms is not equal to the number of heteroatoms");
 						}
 
 						// initialize two pointers, one for the parent ring and one for the benzo ring
 						int parentRingPointer = 0;
 						int benzoRingPointer = 0;
-						*/
-
 						for (int i=0; i< heteroatoms.size(); i++) {
 							Atom heteroatom = fusedRing.getAtomByLocantOrThrow(locants[i]);
 							heteroatom.setElement(elementOfHeteroAtom.get(i));
-							/*
+
 							// we should determine the element is on the the benzo or not
 							Element heteroElement = null;
-							if (benzoAtomList.contains(heteroatom)) {
+							if (benzoAtomList.contains(heteroatom) & benzoRingPointer < benzoHeteroatomsToProcess.size()) {
 								heteroElement = benzoHeteroatomsToProcess.get(benzoRingPointer);
 								benzoRingPointer++;
 							}
-							else {
+							else if (parentRingHeteroatomsToProcess.size() > 0 && parentRingPointer < parentRingHeteroatomsToProcess.size()) {
 								heteroElement = parentRingHeteroatomsToProcess.get(parentRingPointer);
 								parentRingPointer++;
 							}
-							// set the locant attribute of the heteroatom to the locant of the heteroelement
-							heteroElement.addAttribute(new Attribute(LOCANT_ATR, locants[i]));
 							// add the heteroelement to the list of heteroatoms to process
-							heteroatomsToProcess.add(heteroElement);
-							*/
+							if (heteroElement != null) {
+								// set the locant attribute of the heteroatom to the locant of the heteroelement
+								heteroElement.addAttribute(new Attribute(LOCANT_ATR, locants[i]));
+								heteroatomsToProcess.add(heteroElement);
+							}
 						}
 						// now, we can move the heteroatoms to the children of the parent ring tokenEl
-						/*
 						for (Element heteroElement : heteroatomsToProcess) {
 							Element newHeteroElement = heteroElement.copy();
 							parentRing.getTokenEl().addChild(newHeteroElement);
-							heteroElement.detach();*/
+							heteroElement.detach();
+						}
 
 						locantEl.detach();
 					}
