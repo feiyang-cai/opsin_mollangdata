@@ -25,6 +25,8 @@ public class ExampleGetSmilesAndXml {
 		//String chemicalName = "(2E,4Z)-hexa-2,4-diene";
 		//String chemicalName = "(3E)-3-methyl-N-[(3Z)-2-methylpenta-1,3-dien-3-yl]hexa-3,5-dien-2-imine";
 		//String chemicalName = "spiro-9,9'-bifluoren";
+		//String chemicalName = "2-phenyl-3,4-dihydro-2H-1-benzopyran";
+		String chemicalName = "2-benzopyran";
 
 		// different stereochemistry cases
 
@@ -61,7 +63,15 @@ public class ExampleGetSmilesAndXml {
 		//String chemicalName = "1H-2lambda5-spiro[isoquinoline-2,2'-pyrido[1,2-a]pyrazin]-2-ylium";
 
 		// fused / bridge system test
-		String chemicalName = "cyclopenta[1,2-b:5,1-b']bis[1,4]oxathiine";
+		//String chemicalName = "cyclopenta[1,2-b:5,1-b']bis[1,4]oxathiine";
+		//String chemicalName = "1,12-ethenobenzo[4,5]cyclohepta[1,2,3-de]naphthalene";
+		//String chemicalName = "12-methyl-2-azatricyclo[4.4.3.0¹,⁶]trideca-2,4,7,9-tetraene";
+		//String chemicalName = "6,13-ethano-6,13-methanodibenzo[b,g][1,6]diazecine";
+		//String chemicalName = "(10R)-7-amino-16-cyclopropyl-12-fluoro-2,10-dimethyl-15-oxo-10,15,16,17-tetrahydro-2H-8,4-(azeno)pyrazolo[4,3-h][2,5,11]benzoxadiazacyclotetradecine-3-carbonitrile";
+
+
+		// conjunctive nomenclature test
+		//String chemicalName = "benzeneacetic acid";
 
 
 

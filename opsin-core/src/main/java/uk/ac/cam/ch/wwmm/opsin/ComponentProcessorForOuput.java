@@ -2971,7 +2971,8 @@ class ComponentProcessorForOutput {
 					Atom firstInDoubleBond = hwRing.getAtomByLocantOrThrow(locantOfDoubleBond);
 					FragmentTools.unsaturate(firstInDoubleBond, 2, hwRing);
 				}
-				// MolLangData: I have no idea what is this for, we should take care when this is happening
+				// MolLangData: I have no idea what is this for, we should take care when this is happening, throw a mollangdata debug warning
+				state.addWarning(OpsinWarning.OpsinWarningType.MolLangData_DEBUG_WARNING, "MolLangData does not know when the code can run into this situation for this delta element; please report this issue to the developers");
 				deltaEl.detach();
 			}
 
@@ -3006,6 +3007,7 @@ class ComponentProcessorForOutput {
 					elementReplacement = m.group();
 					Atom a = carbonAtomsInRing.get(i);
 					a.setElement(ChemEl.valueOf(elementReplacement));
+					
 					if (heteroatom.getAttribute(LAMBDA_ATR)!=null){
 						a.setLambdaConventionValency(Integer.parseInt(heteroatom.getAttributeValue(LAMBDA_ATR)));
 					}
@@ -3051,6 +3053,8 @@ class ComponentProcessorForOutput {
 		List<Element> conjunctiveGroups = subOrRoot.getChildElements(CONJUNCTIVESUFFIXGROUP_EL);
 		for (Element group : conjunctiveGroups) {
 			suffixFragments.add(group.getFrag());
+			// MolLangData: let's have a debug warning here, we have no idea when this is happening
+			state.addWarning(OpsinWarning.OpsinWarningType.MolLangData_DEBUG_WARNING, "MolLangData does not know when the code can run into this situation for this conjunctive suffix group; please report this issue to the developers");
 		}
 		FragmentTools.assignElementLocants(suffixableFragment, suffixFragments);
 		for (int i = groups.size()-2; i>=0; i--) {
@@ -4088,7 +4092,36 @@ class ComponentProcessorForOutput {
 		}
 		Element groupEl = OpsinTools.getNextSibling(bridges.get(bridgeCount - 1), GROUP_EL);
 		Fragment ringFrag = groupEl.getFrag();
+
+		// MolLangData: we should have the group element as a child of the root element, 
+		// which should be the bridgeParent element
+
+		Element bridgeParent = new TokenEl(BRIDGEPARENT_EL);
+		// directly get all attributes and children from the group element, and also the value
+		List<Attribute> attributes = groupEl.getAttributes();
+		for (Attribute attribute : attributes) {
+			bridgeParent.addAttribute(new Attribute(attribute));
+		}
+		List<Element> children = groupEl.getChildElements();
+		for (Element child : children) {
+			bridgeParent.addChild(child.copy());
+		}
+		bridgeParent.setValue(groupEl.getValue());
+
+		// now we can remove the original children of the group element
+		for (Element child : children) {
+			child.detach();
+		}
+		// MolLangData: add the bridgeParent element as a child of the root element
+		groupEl.addChild(bridgeParent);
+
+		StringBuilder bridgeSystemName = new StringBuilder();
+
 		Map<Fragment, Atom[]> bridgeToRingAtoms = new LinkedHashMap<>();
+
+		// MolLangData: we should have a map from bridge fragments to their corresponding elements
+		Map<Fragment, Element> bridgeToBridgeElement = new LinkedHashMap<>();
+
 		for (Element bridge : bridges) {
 			Element possibleMultiplier = OpsinTools.getPreviousSibling(bridge);
 			List<String[]> locants = null;
@@ -4148,28 +4181,101 @@ class ComponentProcessorForOutput {
 					}
 					ringAtoms = StructureBuildingMethodsForOutput.formEpoxide(state, bridgeFrag, possibleAtoms.get(0));
 				}
+
+				// MolLangData: get the locants of the ring atoms 
+				List<String> ringAtomLocants = new ArrayList<>();
+				for (int j = 0; j < ringAtoms.length; j++) {
+					ringAtomLocants.add(ringAtoms[j].getFirstLocant());
+				}
+
 				bridgeToRingAtoms.put(bridgeFrag, ringAtoms);
 				state.fragManager.incorporateFragment(bridgeFrag, ringFrag);
+
+				// MolLangData: for each bridge fragment, we should have a bridge element as a child of the group element
+				Element bridgeEl = new TokenEl(BRIDGECHILD_EL);
+				// directly get all attributes and children from the bridge, and also the value
+				List<Attribute> bridgeAttributes = bridge.getAttributes();
+				for (Attribute attribute : bridgeAttributes) {
+					bridgeEl.addAttribute(new Attribute(attribute));
+				}
+				// I don't think it has children, so raise an MolLangData bug
+				if (bridge.getChildCount() > 0) {
+					throw new RuntimeException("MolLangData Bug: bridge element should not have children");
+				}
+				// MolLangData: set the locant attributes of the bridge element, which should be separated by ","
+				String bridgeLocant = String.join(",", ringAtomLocants);
+
+				// MolLangData: set the bridge locant attributes of the bridge element
+				bridgeEl.addAttribute(new Attribute(BRIDGELOCANTS_EL, bridgeLocant));
+				bridgeEl.setValue(bridge.getValue());
+				groupEl.addChild(bridgeEl);
+
+				bridgeToBridgeElement.put(bridgeFrag, bridgeEl);
 			}
 			bridge.detach();
+
+			bridgeSystemName.append(bridge.getValue());
 		}
 		int highestLocant = getHighestNumericLocant(ringFrag);
 		List<Fragment> bridgeFragments = new ArrayList<>(bridgeToRingAtoms.keySet());
 		Collections.sort(bridgeFragments, new SortBridgesByHighestLocantedBridgehead(bridgeToRingAtoms));
 		for (Fragment bridgeFragment: bridgeFragments) {
 			List<Atom> bridgeFragmentAtoms = bridgeFragment.getAtomList();
+			// MolLangData: get the bridge element corresponding to the bridge fragment
+			Element bridgeElement = bridgeToBridgeElement.get(bridgeFragment);
+			// have a locant list to store the locants of the bridge element
+			List<String> bridgeLabels = new ArrayList<>();
+
 			Atom[] ringAtoms = bridgeToRingAtoms.get(bridgeFragment);
 			if (getLocantNumber(ringAtoms[0]) <= getLocantNumber(ringAtoms[1])){
 				for (int i = bridgeFragmentAtoms.size() - 1; i >=0; i--) {
-					bridgeFragmentAtoms.get(i).addLocant(String.valueOf(++highestLocant));
+					// MolLangData: get the locant of the bridge atom
+					String bridgeAtomLocant = String.valueOf(++highestLocant);
+					bridgeLabels.add(bridgeAtomLocant);
+
+					bridgeFragmentAtoms.get(i).addLocant(bridgeAtomLocant);
 				}
 			}
 			else{
 				for (Atom atom : bridgeFragmentAtoms) {
-					atom.addLocant(String.valueOf(++highestLocant));
+					// MolLangData: get the locant of the bridge atom
+					String bridgeAtomLocant = String.valueOf(++highestLocant);
+					bridgeLabels.add(bridgeAtomLocant);
+
+					atom.addLocant(bridgeAtomLocant);
 				}
 			}
+
+			// MolLangData: set the labels attributes of the bridge element, which should be separated by "/"
+			// if there is no labels in the bridge element, add; if there are labels, set
+			if (bridgeElement.getAttribute(LABELS_ATR) == null) {
+				bridgeElement.addAttribute(new Attribute(LABELS_ATR, String.join("/", bridgeLabels)));
+			}
+			else {
+				bridgeElement.getAttribute(LABELS_ATR).setValue(String.join("/", bridgeLabels));
+			}
 		}
+		// MolLangData: remove the group element's original attributes, excluding "value", "type", and "subtype"
+		List<Attribute> attributesToRemove = new ArrayList<>();
+		for (Attribute attribute : attributes) {
+			if (!attribute.getName().equals(VALUE_ATR) && !attribute.getName().equals(TYPE_ATR) && !attribute.getName().equals(SUBTYPE_ATR)) {
+				attributesToRemove.add(attribute);
+			}
+		}
+		for (Attribute attribute : attributesToRemove) {
+			groupEl.removeAttribute(attribute);
+		}
+
+
+		// MolLangData: set the group element's new subtype as a bridgeSystem
+		groupEl.getAttribute(SUBTYPE_ATR).setValue("bridgeSystem");
+		// MolLangData: set the group element's value and attribute value of value
+		bridgeSystemName.append(groupEl.getValue());
+		String bridgeSystemNameString = bridgeSystemName.toString();
+		groupEl.getAttribute(VALUE_ATR).setValue(bridgeSystemNameString);
+		groupEl.setValue(bridgeSystemNameString);
+
+
 	}
 
 	private static int getLocantNumber(Atom atom) {

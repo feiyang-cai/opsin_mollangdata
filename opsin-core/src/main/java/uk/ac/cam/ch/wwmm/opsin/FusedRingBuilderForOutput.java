@@ -105,6 +105,8 @@ class FusedRingBuilderForOutput {
 			possibleMultiplier.detach();
 			for (int j = 1; j < numberOfParents; j++) {
 				Fragment copyOfParentRing =state.fragManager.copyFragment(parentRing);
+				// MolLangData: we also copy the tokenEl of the parent ring
+				copyOfParentRing.setTokenEl(parentRing.getTokenEl().copy());
 				parentFragments.add(copyOfParentRing);
 				componentFragments.add(copyOfParentRing);
 			}
@@ -167,6 +169,8 @@ class FusedRingBuilderForOutput {
 			for (int j = 0; j < multiplier; j++) {
 				if (j>0){
 					fusionComponents[j] = state.fragManager.copyAndRelabelFragment(nextComponent,  j);
+					// MolLangData: we also copy the tokenEl of the component ring
+					fusionComponents[j].setTokenEl(nextComponent.getTokenEl().copy());
 				}
 				else{
 					fusionComponents[j] = nextComponent;
@@ -246,16 +250,54 @@ class FusedRingBuilderForOutput {
 		}
 
 		// MolLangData: Create snapshots of labels and atoms before fusion
-		//Map<Atom, String> parentRingAtomToLabel = createAtomToLabelSnapshot(parentRing);
+		Map<Atom, String> parentRingAtomToLabel = createAtomToLabelSnapshot(parentRing);
 		// Have a list of mapping of all the componentsFragment to their atomToLabel snapshot
-		//List<Map<Atom, String>> componentFragmentsAtomToLabel = new ArrayList<>();
+		List<Map<Atom, String>> componentFragmentsAtomToLabel = new ArrayList<>();
+
+		// MolLangData: Create a fusedChildRing element for the parent ring
+		Element fusedChildRingElForParentRing = new TokenEl(FUSEDCHILDRING_EL);
+		// directly get all attributes and children from the parent ring tokenEl, and also the value
+		List<Attribute> attributes = parentRing.getTokenEl().getAttributes();
+		for (Attribute attribute : attributes) {
+			fusedChildRingElForParentRing.addAttribute(new Attribute(attribute));
+		}
+		List<Element> children = parentRing.getTokenEl().getChildElements();
+		for (Element child : children) {
+			fusedChildRingElForParentRing.addChild(child.copy());
+		}
+		fusedChildRingElForParentRing.setValue(parentRing.getTokenEl().getValue());
+
+		// now we can remove the original children of the parent ring tokenEl
+		for (Element child : children) {
+			child.detach();
+		}
+
+		// MolLangData: add the fusedChildRing element for the parent ring as a child of the parent ring tokenEl
+		parentRing.getTokenEl().addChild(fusedChildRingElForParentRing);
+
 
 		for (Fragment ring : componentFragments) {
-			//Map<Atom, String> componentFragmentAtomToLabel = createAtomToLabelSnapshot(ring);
+			Map<Atom, String> componentFragmentAtomToLabel = createAtomToLabelSnapshot(ring);
 			state.fragManager.incorporateFragment(ring, parentRing);
-			//updateSnapshotWithAtomReplacements(parentRingAtomToLabel, atomsToRemoveToReplacementAtom);
-			//updateSnapshotWithAtomReplacements(componentFragmentAtomToLabel, atomsToRemoveToReplacementAtom);
-			//componentFragmentsAtomToLabel.add(componentFragmentAtomToLabel);
+			updateSnapshotWithAtomReplacements(parentRingAtomToLabel, atomsToRemoveToReplacementAtom);
+			updateSnapshotWithAtomReplacements(componentFragmentAtomToLabel, atomsToRemoveToReplacementAtom);
+			componentFragmentsAtomToLabel.add(componentFragmentAtomToLabel);
+
+			// MolLangData: we now can copy the tokenEl of the component ring to the parent ring's fusedChildRing element
+			Element fusedChildRingElForComponentRing = new TokenEl(FUSEDCHILDRING_EL);
+			// directly get all attributes and children from the component ring tokenEl, and also the value
+			List<Attribute> componentRingAttributes = ring.getTokenEl().getAttributes();
+			for (Attribute attribute : componentRingAttributes) {
+				fusedChildRingElForComponentRing.addAttribute(new Attribute(attribute));
+			}
+			List<Element> componentRingChildren = ring.getTokenEl().getChildElements();
+			for (Element child : componentRingChildren) {
+				fusedChildRingElForComponentRing.addChild(child.copy());
+			}
+			fusedChildRingElForComponentRing.setValue(ring.getTokenEl().getValue());
+			parentRing.getTokenEl().addChild(fusedChildRingElForComponentRing);
+			
+			//parentRing.getTokenEl().addChild(ring.getTokenEl().copy());
 		}
 		
 		// MolLangData: Update atomToOriginalLabels to map removed atoms to their replacement atoms
@@ -273,7 +315,7 @@ class FusedRingBuilderForOutput {
 		FusedRingNumberer.numberFusedRing(parentRing);//numbers the fused ring;
 		
 		// MolLangData: create a fusedRingNumbering element to store the numbering information
-		//createFusedRingNumberingElement(parentRing, parentRingAtomToLabel, componentFragmentsAtomToLabel);
+		createFusedRingNumberingElement(parentRing, parentRingAtomToLabel, componentFragmentsAtomToLabel);
 
 		StringBuilder fusedRingName = new StringBuilder();
 		for (Element element : nameComponents) {
@@ -298,9 +340,24 @@ class FusedRingBuilderForOutput {
 		fusedRingEl.insertChild(fusedChildRingEl, 0);
 		*/
 
-		fusedRingEl.getAttribute(VALUE_ATR).setValue(fusedRingName.toString()); //MolLangData Comment: this is original code, set the value of the fused ring as the original tokenEl value
+		// MolLangData: we can remove the original attributes of the fused ring element, excluding "value", "type", and "subtype"
+		List<Attribute> attributesToRemove = new ArrayList<>();
+		for (Attribute attribute : fusedRingEl.getAttributes()) {
+			if (!attribute.getName().equals(VALUE_ATR) && !attribute.getName().equals(TYPE_ATR) && !attribute.getName().equals(SUBTYPE_ATR)) {
+				attributesToRemove.add(attribute);
+			}
+		}
+		for (Attribute attribute : attributesToRemove) {
+			fusedRingEl.removeAttribute(attribute);
+		}
 
-		/* 
+		fusedRingEl.getAttribute(VALUE_ATR).setValue(fusedRingName.toString()); //MolLangData Comment: this is original code, set the value of the fused ring as the original tokenEl value
+		fusedRingEl.setValue(fusedRingEl.getAttribute(VALUE_ATR).getValue());
+		// MolLangData: we now set the subtype as a fused ring system
+		fusedRingEl.getAttribute(SUBTYPE_ATR).setValue("fusedRing");
+
+		/*
+
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		for (Attribute attribute : allAttributes) {
 			if (!attribute.getName().equals(VALUE_ATR) && !attribute.getName().equals(TYPE_ATR) && !attribute.getName().equals(SUBTYPE_ATR)) {
@@ -311,8 +368,10 @@ class FusedRingBuilderForOutput {
 			fusedRingEl.removeAttribute(attribute);
 		}
 		*/
+
+
 		fusedRingEl.getAttribute(TYPE_ATR).setValue(RING_TYPE_VAL);
-		fusedRingEl.setValue(fusedRingName.toString());
+		//fusedRingEl.setValue(fusedRingName.toString());
 
 		for (Element element : nameComponents) {
 			element.detach();
@@ -455,6 +514,8 @@ class FusedRingBuilderForOutput {
 		    for (Atom atom : atomList) {
 		        atom.setSpareValency(true);
 		    }
+			// MolLangData: we should add a conjugate attribute to the cyclicAlkaneGroup
+			cyclicAlkaneGroup.addAttribute(new Attribute(CONJUGATED_ATR, "true"));
 		}
 	}
 
@@ -546,7 +607,21 @@ class FusedRingBuilderForOutput {
 						state.addWarning(OpsinWarning.OpsinWarningType.MolLangData_DEBUG_WARNING, "MolLangData does not know when the code can run into this situation for this higher order fusion; please report this issue to the developers");
 						performHigherOrderFusion(fusionDescriptor, component, parentToUse);
 					}
-					// MolLangData TODO: we should merge the same component into a single
+				    // MolLangData: do we need to remove the redundant fusion element from the parent group? since if no multiplier is present, multi parent systems are using the same fusion element
+					/*
+					if (multiplier == 1) {
+						if (j > 0) {
+							// get the last child element of the parent group
+							Element lastChild = parentToUse.getTokenEl().getChildElements().get(parentToUse.getTokenEl().getChildElements().size() - 1);
+							// should assert that the last child is a fusedChildRing element, otherwise it is a bug
+							if (!lastChild.getName().equals(FUSEDCHILDRING_EL)) {
+								throw new RuntimeException("MolLangData Bug: The last child of the parent group is not a fusedChildRing element");
+							}
+							// remove the last child element of the parent group
+							parentToUse.getTokenEl().removeChild(lastChild);
+						}
+					}
+					*/
 				}
 				previousFusionLevelFragments = fusionComponents;
 				componentFragments.addAll(fusionComponents);
@@ -792,78 +867,40 @@ class FusedRingBuilderForOutput {
 	 */
 	private void mergeChildRingTokenElToParentRingTokenEl(Fragment childRing, Fragment parentRing, List<Atom> childAtoms, List<Atom> parentAtoms) throws StructureBuildingException {
 		// MolLangData: directly raise an exception here, because this is deprecated and should not be used
-		throw new UnsupportedOperationException("mergeChildRingTokenElToParentRingTokenEl is deprecated and should not be used");
-		
-		/* 
-		Element childRingTokenEl = childRing.getTokenEl();
-		Element parentRingTokenEl = parentRing.getTokenEl();
-		
-		if (childRingTokenEl == null || parentRingTokenEl == null) {
+		throw new UnsupportedOperationException("MolLangData Bug: mergeChildRingTokenElToParentRingTokenEl is deprecated and should not be used");
+
+		/*
+		// get the group element of the child ring
+		Element childRingGroup = childRing.getTokenEl();
+
+		// get the group element of the parent ring
+		Element parentRingGroup = parentRing.getTokenEl();
+
+		if (childRingGroup == null || parentRingGroup == null) {
+			// throw an warning here, we have no idea why it can happen
+			state.addWarning(OpsinWarning.OpsinWarningType.MolLangData_DEBUG_WARNING, "MolLangData does not know why the tokenEl of the child ring or parent ring is not available; please report this issue to the developers");
 			return; // Cannot merge if tokenEls are not available
 		}
-		// create a new FusedChildRing to store the 
 
+		// have a new fusedChildRing element to store the child ring
+		Element fusedChildRingElForChildRing = new TokenEl(FUSEDCHILDRING_EL);
 
-		
-		// Get atom lists in the order they appear in atomMapFromId (which corresponds to labels order)
-		List<Atom> childAtomList = childRing.getAtomList();
-		List<Atom> parentAtomList = parentRing.getAtomList();
-		
-		// Get labels from tokenEls
-		String childLabelsStr = childRingTokenEl.getAttributeValue(LABELS_ATR);
-		String parentLabelsStr = parentRingTokenEl.getAttributeValue(LABELS_ATR);
-		
-		if (childLabelsStr == null || parentLabelsStr == null) {
-			return; // Cannot determine fusion labels if labels are not available
+		// directly get all attributes and children from the child ring tokenEl, and also the value
+		// attributes: 
+		List<Attribute> attributes = childRingGroup.getAttributes();
+		for (Attribute attribute : attributes) {
+			fusedChildRingElForChildRing.addAttribute(new Attribute(attribute));
 		}
-		
-		String[] childLabels = childLabelsStr.split("/", -1);
-		String[] parentLabels = parentLabelsStr.split("/", -1);
-		
-		// Find the label indices for fused atoms
-		List<String> fusedChildLabels = new ArrayList<>();
-		List<String> fusedParentLabels = new ArrayList<>();
-		
-		for (Atom childAtom : childAtoms) {
-			int index = childAtomList.indexOf(childAtom);
-			if (index >= 0 && index < childLabels.length) {
-				fusedChildLabels.add(childLabels[index]);
-			}
+		// children: all children of the child ring group
+		List<Element> children = childRingGroup.getChildElements();
+		for (Element child : children) {
+			fusedChildRingElForChildRing.addChild(child.copy());
 		}
-		
-		for (Atom parentAtom : parentAtoms) {
-			int index = parentAtomList.indexOf(parentAtom);
-			if (index >= 0 && index < parentLabels.length) {
-				fusedParentLabels.add(parentLabels[index]);
-			}
-		}
-		
-		// Create FusedChildRing element
-		Element fusedChildRingEl = new TokenEl(FUSEDCHILDRING_EL);
-		
-		// Set the value from childRing tokenEl value
-		fusedChildRingEl.setValue(childRingTokenEl.getValue());
-		
-		// Copy all attributes from childRing tokenEl to fusedChildRingEl
-		for (int i = 0; i < childRingTokenEl.getAttributeCount(); i++) {
-			Attribute attr = childRingTokenEl.getAttribute(i);
-			fusedChildRingEl.addAttribute(new Attribute(attr));
-		}
-		
-		// Copy all children from childRing tokenEl to fusedChildRingEl
-		for (Element childEl : childRingTokenEl.getChildElements()) {
-			Element copiedChild = childEl.copy();
-			copiedChild.setParent(fusedChildRingEl);
-			fusedChildRingEl.addChild(copiedChild);
-		}
-		
-		//fusedChildRingEl.addAttribute(new Attribute("fusedChildLabels", fusedChildLabelsStr.toString()));
-		//fusedChildRingEl.addAttribute(new Attribute("fusedParentLabels", fusedParentLabelsStr.toString()));
-		
-		// Insert FusedChildRing element after parentRing tokenEl
-		// Directly combine the parentRing tokenEl and the fusedChildRingEl
-		parentRingTokenEl.addChild(fusedChildRingEl);
+		// value: the value of the child ring group
+		fusedChildRingElForChildRing.setValue(childRingGroup.getValue());
 
+		// add the new fusedChildRing element for the child ring as a child of the parent ring group
+		parentRingGroup.addChild(fusedChildRingElForChildRing);
 		*/
 	}
 	
@@ -1114,6 +1151,28 @@ class FusedRingBuilderForOutput {
 		 */
 		Fragment benzoRing = benzoEl.getFrag();
 		Fragment parentRing = parentEl.getFrag();
+
+
+		// MolLangData: create a fusedChildRing element for the parent ring
+		Element fusedChildRingElForParentRing = new TokenEl(FUSEDCHILDRING_EL);
+		// directly get all attributes and children from the parent ring tokenEl, and also the value
+		List<Attribute> attributes = parentRing.getTokenEl().getAttributes();
+		for (Attribute attribute : attributes) {
+			fusedChildRingElForParentRing.addAttribute(new Attribute(attribute));
+		}
+		List<Element> children = parentRing.getTokenEl().getChildElements();
+		for (Element child : children) {
+			fusedChildRingElForParentRing.addChild(child.copy());
+		}
+		fusedChildRingElForParentRing.setValue(parentRing.getTokenEl().getValue());
+
+		// now we can remove the original children of the parent ring tokenEl
+		for (Element child : children) {
+			child.detach();
+		}
+
+		// MolLangData: add the fusedChildRing element for the parent ring as a child of the parent ring tokenEl
+		parentRing.getTokenEl().addChild(fusedChildRingElForParentRing);
 		
 		// MolLangData: Create snapshots of labels and atoms before fusion
 		Map<Atom, String> parentRingAtomToLabel = createAtomToLabelSnapshot(parentRing);
@@ -1127,13 +1186,41 @@ class FusedRingBuilderForOutput {
 		// MolLangData: Update snapshots to map removed atoms to their replacement atoms
 		updateSnapshotWithAtomReplacements(parentRingAtomToLabel, atomsToRemoveToReplacementAtom);
 		updateSnapshotWithAtomReplacements(fusedRingAtomToLabel, atomsToRemoveToReplacementAtom);
-		
+
+		// MolLangData: we now can copy the tokenEl of the benzo ring to the parent ring's fusedChildRing element
+		Element fusedChildRingElForBenzoRing = new TokenEl(FUSEDCHILDRING_EL);
+		// directly get all attributes and children from the benzo ring tokenEl, and also the value
+		List<Attribute> benzoRingAttributes = benzoRing.getTokenEl().getAttributes();
+		for (Attribute attribute : benzoRingAttributes) {
+			fusedChildRingElForBenzoRing.addAttribute(new Attribute(attribute));
+		}
+		List<Element> benzoRingChildren = benzoRing.getTokenEl().getChildElements();
+		for (Element child : benzoRingChildren) {
+			fusedChildRingElForBenzoRing.addChild(child.copy());
+		}
+		fusedChildRingElForBenzoRing.setValue(benzoRing.getTokenEl().getValue());
+
+		// MolLangData: add the fusedChildRing element for the benzo ring as a child of the parent ring's fusedChildRing element
+		parentRing.getTokenEl().addChild(fusedChildRingElForBenzoRing);
+
+
+		// MolLangData: add the fusedChildRing element for the benzo ring as a child of the parent ring's fusedChildRing element
 		removeMergedAtoms();
 		FusedRingNumberer.numberFusedRing(parentRing);//numbers the fused ring;
-		// MolLangData: create a fusedRingNumbering element to store the numbering information
-		createFusedRingNumberingElement(parentRing, parentRingAtomToLabel, fusedRingAtomToLabelList);
 		Fragment fusedRing =parentRing;
 		setBenzoHeteroatomPositioning(benzoEl, fusedRing);
+
+		// MolLangData: create a fusedRingNumbering element to store the numbering information
+		createFusedRingNumberingElement(parentRing, parentRingAtomToLabel, fusedRingAtomToLabelList);
+
+		// MoLangData: set the subtype as a fused ring system
+		parentRing.getTokenEl().getAttribute(SUBTYPE_ATR).setValue("fusedRing");
+		StringBuilder fusedRingName = new StringBuilder();
+		fusedRingName.append(parentRing.getTokenEl().getValue());
+		fusedRingName.append(benzoRing.getTokenEl().getValue());
+		parentRing.getTokenEl().getAttribute(VALUE_ATR).setValue(fusedRingName.toString());
+		parentRing.getTokenEl().setValue(fusedRingName.toString());
+		
 	}
 
 	/**
@@ -1163,9 +1250,85 @@ class FusedRingBuilderForOutput {
 						for (Atom atom : heteroatoms) {
 							atom.setElement(ChemEl.C);
 						}
-						for (int i=0; i< heteroatoms.size(); i++) {
-							fusedRing.getAtomByLocantOrThrow(locants[i]).setElement(elementOfHeteroAtom.get(i));
+
+						/*
+
+						// MolLangData: we need to move the heteroatom element from the children of the fusedChildRing element to the children of the parent ring tokenEl
+						// MolLangData: we need to have a list of heteroatoms to process
+						List<Element> heteroatomsToProcess = new ArrayList<>();
+
+						// MolLangData: get the atom list from the benzoEl
+						List<Atom> benzoAtomList = benzoEl.getFrag().getAtomList();
+
+						List<Element> parentRingChildren = parentRing.getTokenEl().getChildElements();
+						List<Element> fusedChildRingElements = new ArrayList<>();
+						for (Element child : parentRingChildren) {
+							if (child.getName().equals(FUSEDCHILDRING_EL)) {
+								fusedChildRingElements.add(child);
+							}
 						}
+						// it should be eqaul to 2, first is the parent ring, second is the benzo ring
+						if (fusedChildRingElements.size() != 2) {
+							throw new StructureBuildingException("MolLangData Bug: The number of fusedChildRing elements is not equal to 2");
+						}
+
+						// MolLangData: have two lists of heteroatom elements, one for the benzo and one for the parent ring
+						List<Element> benzoHeteroatomsToProcess = new ArrayList<>();
+						List<Element> parentRingHeteroatomsToProcess = new ArrayList<>();
+
+						// first, go through the first fusedChildRing element to get the heteroatoms, this is the parent ring
+						List<Element> firstFusedChildRingChildren = fusedChildRingElements.get(0).getChildElements();
+						for (Element child : firstFusedChildRingChildren) {
+							if (child.getName().equals(HETEROATOM_EL)) {
+								parentRingHeteroatomsToProcess.add(child);
+							}
+						}
+
+						// second, go through the second fusedChildRing element to get the heteroatoms, this is the benzo ring
+						List<Element> secondFusedChildRingChildren = fusedChildRingElements.get(1).getChildElements();
+						for (Element child : secondFusedChildRingChildren) {
+							if (child.getName().equals(HETEROATOM_EL)) {
+								benzoHeteroatomsToProcess.add(child);
+							}
+						}
+
+						// the sum of the lengths of the two lists should be equal to the number of heteroatoms
+						if (parentRingHeteroatomsToProcess.size() + benzoHeteroatomsToProcess.size() != heteroatoms.size()) {
+							throw new StructureBuildingException("MolLangData Bug: The sum of the lengths of the two lists of heteroatoms is not equal to the number of heteroatoms");
+						}
+
+						// initialize two pointers, one for the parent ring and one for the benzo ring
+						int parentRingPointer = 0;
+						int benzoRingPointer = 0;
+						*/
+
+						for (int i=0; i< heteroatoms.size(); i++) {
+							Atom heteroatom = fusedRing.getAtomByLocantOrThrow(locants[i]);
+							heteroatom.setElement(elementOfHeteroAtom.get(i));
+							/*
+							// we should determine the element is on the the benzo or not
+							Element heteroElement = null;
+							if (benzoAtomList.contains(heteroatom)) {
+								heteroElement = benzoHeteroatomsToProcess.get(benzoRingPointer);
+								benzoRingPointer++;
+							}
+							else {
+								heteroElement = parentRingHeteroatomsToProcess.get(parentRingPointer);
+								parentRingPointer++;
+							}
+							// set the locant attribute of the heteroatom to the locant of the heteroelement
+							heteroElement.addAttribute(new Attribute(LOCANT_ATR, locants[i]));
+							// add the heteroelement to the list of heteroatoms to process
+							heteroatomsToProcess.add(heteroElement);
+							*/
+						}
+						// now, we can move the heteroatoms to the children of the parent ring tokenEl
+						/*
+						for (Element heteroElement : heteroatomsToProcess) {
+							Element newHeteroElement = heteroElement.copy();
+							parentRing.getTokenEl().addChild(newHeteroElement);
+							heteroElement.detach();*/
+
 						locantEl.detach();
 					}
 				}
@@ -1236,7 +1399,16 @@ class FusedRingBuilderForOutput {
 		
 		// Fall back to index-based approach from labels attribute for atoms not found in atomMapFromLocant
 		String labelsStr = tokenEl.getAttributeValue(LABELS_ATR);
-		if (labelsStr != null) {
+		// if the labels string is "numeric", then we need to set the labels to the numeric locants
+		if (labelsStr != null && labelsStr.equals(NUMERIC_LABELS_VAL)) {
+			for (int i = 0; i < atomList.size(); i++) {
+				Atom atom = atomList.get(i);
+				if (!atomToLabel.containsKey(atom)) {
+					atomToLabel.put(atom, Integer.toString(i + 1));
+				}
+			}
+		}
+		else if (labelsStr != null) {
 			String[] labels = labelsStr.split("/", -1);
 			for (int i = 0; i < Math.min(labels.length, atomList.size()); i++) {
 				Atom atom = atomList.get(i);

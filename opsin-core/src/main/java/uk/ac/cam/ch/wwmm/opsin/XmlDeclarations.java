@@ -57,6 +57,16 @@ class XmlDeclarations {
 	/**A fused child ring element containing fusion information*/
 	static final String FUSEDCHILDRING_EL ="fusedChildRing";
 
+	/**A bridge parent element containing bridge information*/
+	static final String BRIDGEPARENT_EL ="bridgeParent";
+
+	/**A bridge child element containing bridge information*/
+	static final String BRIDGECHILD_EL ="bridgeChild";
+
+	/**A bridge locant element containing bridge locant information for a bridge fragment*/
+	static final String BRIDGELOCANTS_EL ="bridgeLocants";
+
+
 	/**A spiro system component element containing spiro information*/
 	static final String SPIROSYSTEMCOMPONENT_EL ="spiroSystemComponent";
 
@@ -197,6 +207,9 @@ class XmlDeclarations {
 
 	/**The stereo group (absolute, racemic, relative)  */
 	static final String STEREOGROUP_ATR ="stereoGroup";
+
+	/**Whether the group is conjugate*/
+	static final String CONJUGATED_ATR ="conjugated";
 
 	/**The type of the token. Possible values are enumerated with strings ending in _TYPE_VAL */
 	static final String TYPE_ATR = "type";

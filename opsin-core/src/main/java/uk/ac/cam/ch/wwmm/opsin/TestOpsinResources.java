@@ -86,9 +86,19 @@ public class TestOpsinResources {
 	 * 
 	 * @param filePath Path to the resource file
 	 * @param outputBaseDir Base directory for output logs
-	 * @return Statistics: [total, passed, failed]
+	 * @return Object containing statistics and list of failed sample names
 	 */
-	private static int[] processResourceFile(File filePath, File outputBaseDir) {
+	private static class FileProcessResult {
+		int[] stats; // [total, passed, failed]
+		java.util.List<String> failedSamples;
+		
+		FileProcessResult(int[] stats, java.util.List<String> failedSamples) {
+			this.stats = stats;
+			this.failedSamples = failedSamples;
+		}
+	}
+	
+	private static FileProcessResult processResourceFile(File filePath, File outputBaseDir) {
 		// Create subfolder for this file
 		String fileStem = filePath.getName().replaceFirst("[.][^.]+$", ""); // filename without extension
 		File outputDir = new File(outputBaseDir, fileStem);
@@ -100,6 +110,7 @@ public class TestOpsinResources {
 		int sampleCount = 0;
 		int passedCount = 0;
 		int failedCount = 0;
+		java.util.List<String> failedSamples = new java.util.ArrayList<>();
 		
 		try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 			String line;
@@ -128,6 +139,7 @@ public class TestOpsinResources {
 					passedCount++;
 				} else {
 					failedCount++;
+					failedSamples.add(chemicalName);
 				}
 				
 				// Create safe filename for output
@@ -141,7 +153,7 @@ public class TestOpsinResources {
 		} catch (IOException e) {
 			System.err.println("Error reading file " + filePath.getName() + ": " + e.getMessage());
 			e.printStackTrace();
-			return new int[]{sampleCount, passedCount, failedCount};
+			return new FileProcessResult(new int[]{sampleCount, passedCount, failedCount}, failedSamples);
 		}
 		
 		// Create summary file
@@ -163,7 +175,7 @@ public class TestOpsinResources {
 		System.out.println("  Completed: " + sampleCount + " samples (" + passedCount + " passed, " + failedCount + " failed)");
 		System.out.println();
 		
-		return new int[]{sampleCount, passedCount, failedCount};
+		return new FileProcessResult(new int[]{sampleCount, passedCount, failedCount}, failedSamples);
 	}
 	
 	/**
@@ -242,13 +254,21 @@ public class TestOpsinResources {
 		int totalSamples = 0;
 		int totalPassed = 0;
 		int totalFailed = 0;
+		java.util.Map<String, java.util.List<String>> filesWithFailures = new java.util.LinkedHashMap<>();
 		
 		for (File txtFile : txtFiles) {
 			try {
-				int[] stats = processResourceFile(txtFile, outputBaseDir);
+				FileProcessResult result = processResourceFile(txtFile, outputBaseDir);
+				int[] stats = result.stats;
 				totalSamples += stats[0];
 				totalPassed += stats[1];
 				totalFailed += stats[2];
+				
+				// Track files with failures and their failed sample names
+				if (stats[2] > 0) {
+					String fileStem = txtFile.getName().replaceFirst("[.][^.]+$", ""); // filename without extension
+					filesWithFailures.put(fileStem, result.failedSamples);
+				}
 			} catch (Exception e) {
 				System.err.println("Error processing " + txtFile.getName() + ": " + e.getMessage());
 				e.printStackTrace();
@@ -269,6 +289,20 @@ public class TestOpsinResources {
 				writer.printf("Overall pass rate: %.2f%%\n", (totalPassed * 100.0 / totalSamples));
 			} else {
 				writer.println("Overall pass rate: N/A");
+			}
+			writer.println();
+			writer.println("File directories with failures:");
+			if (filesWithFailures.isEmpty()) {
+				writer.println("  (None - all tests passed)");
+			} else {
+				for (java.util.Map.Entry<String, java.util.List<String>> entry : filesWithFailures.entrySet()) {
+					String fileDir = entry.getKey();
+					java.util.List<String> failedSamples = entry.getValue();
+					writer.println("  - " + fileDir);
+					for (String sampleName : failedSamples) {
+						writer.println("    - " + sampleName);
+					}
+				}
 			}
 		} catch (IOException e) {
 			System.err.println("Error writing overall summary: " + e.getMessage());
