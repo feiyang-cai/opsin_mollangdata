@@ -66,6 +66,9 @@ class XmlDeclarations {
 	/**A bridge locant element containing bridge locant information for a bridge fragment*/
 	static final String BRIDGELOCANTS_EL ="bridgeLocants";
 
+	/**A heteroatom relocation i.e. relocate the heteroatom to a different position */
+	static final String HETEROATOMRELOCATION_EL ="heteratomRelocation";
+
 
 	/**A spiro system component element containing spiro information*/
 	static final String SPIROSYSTEMCOMPONENT_EL ="spiroSystemComponent";
@@ -420,6 +423,7 @@ class XmlDeclarations {
 	
 	/**A subtractive prefix that removes a heteroatom i.e. replaces it with carbon */
 	static final String HETEROATOMREMOVAL_TYPE_VAL = "heteratomRemoval";
+
 
 	/**An implicit bracket. Implicit brackets are added where a bracket is needed to give the intended meaning*/
 	static final String IMPLICIT_TYPE_VAL ="implicit";

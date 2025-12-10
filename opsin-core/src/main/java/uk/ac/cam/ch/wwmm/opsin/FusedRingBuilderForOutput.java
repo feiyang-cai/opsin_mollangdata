@@ -1208,10 +1208,43 @@ class FusedRingBuilderForOutput {
 		removeMergedAtoms();
 		FusedRingNumberer.numberFusedRing(parentRing);//numbers the fused ring;
 		Fragment fusedRing =parentRing;
-		setBenzoHeteroatomPositioning(benzoEl, fusedRing);
+		Map<String, Map<ChemEl, String>> heteroatomLocantMaps = setBenzoHeteroatomPositioning(benzoEl, fusedRing);
 
 		// MolLangData: create a fusedRingNumbering element to store the numbering information
 		createFusedRingNumberingElement(parentRing, parentRingAtomToLabel, fusedRingAtomToLabelList);
+
+		// MolLangData: if heteroatomLocantMaps is not null, we need to add it to the parent ring tokenEl
+		if (heteroatomLocantMaps != null) {
+			Map<ChemEl, String> originalHeteroatomLocants = heteroatomLocantMaps.get("original");
+			Map<ChemEl, String> relocatedHeteroatomLocants = heteroatomLocantMaps.get("relocated");
+			// assert the sizes of the two maps are equal
+			if (originalHeteroatomLocants.size() != relocatedHeteroatomLocants.size()) {
+				throw new StructureBuildingException("MolLangData Bug: The sizes of the two maps of heteroatom locants are not equal");
+			}
+			for (int i = 0; i < originalHeteroatomLocants.size(); i++) {
+				ChemEl originalElement = originalHeteroatomLocants.keySet().toArray(new ChemEl[0])[i];
+				ChemEl relocatedElement = relocatedHeteroatomLocants.keySet().toArray(new ChemEl[0])[i];
+				// assert the two elements are equal
+				if (originalElement != relocatedElement) {
+					throw new StructureBuildingException("MolLangData Bug: The two elements of the heteroatom locants are not equal");
+				}
+				// get the original locant and relocated locant
+				String originalLocant = originalHeteroatomLocants.get(originalElement);
+				String relocatedLocant = relocatedHeteroatomLocants.get(relocatedElement);
+				// if the original locant not equal to the relocated locant, we need to create a heteroatomRelocation element
+
+				if (!originalLocant.equals(relocatedLocant)) {
+					Element heteroatomRelocationEl = new TokenEl(HETEROATOMRELOCATION_EL);
+					// the string should be like "element: originalLocant -> relocatedLocant"
+					String relocatedString = originalElement.toString() + ": " + originalLocant + " to " + relocatedLocant;
+					heteroatomRelocationEl.setValue(relocatedString);
+					// add the heteroatomRelocation element as a child of the parent ring tokenEl
+					parentRing.getTokenEl().addChild(heteroatomRelocationEl);
+				}
+			}
+			
+
+		}
 
 		// MoLangData: set the subtype as a fused ring system
 		parentRing.getTokenEl().getAttribute(SUBTYPE_ATR).setValue("fusedRing");
@@ -1227,9 +1260,10 @@ class FusedRingBuilderForOutput {
 	 * Checks for locant(s) before benzo and uses these to set 
 	 * @param benzoEl
 	 * @param fusedRing
+	 * @return Map containing "original" and "relocated" keys with heteroatom locant maps, or null if heteroatomsToProcess is not null/empty
 	 * @throws StructureBuildingException
 	 */
-	private void setBenzoHeteroatomPositioning(Element benzoEl, Fragment fusedRing) throws StructureBuildingException {
+	private Map<String, Map<ChemEl, String>> setBenzoHeteroatomPositioning(Element benzoEl, Fragment fusedRing) throws StructureBuildingException {
 		Element locantEl = OpsinTools.getPreviousSibling(benzoEl);
 		if (locantEl != null && locantEl.getName().equals(LOCANT_EL)) {
 			String[] locants = locantEl.getValue().split(",");
@@ -1237,10 +1271,14 @@ class FusedRingBuilderForOutput {
 				List<Atom> atomList =fusedRing.getAtomList();
 				List<Atom> heteroatoms = new ArrayList<>();
 				List<ChemEl> elementOfHeteroAtom = new ArrayList<>();
+				// MolLangData: we need to have a map to store the heteroatoms original locants and relocated locants
+				Map<ChemEl, String> heteroatomOriginalLocants = new HashMap<>();
 				for (Atom atom : atomList) {//this iterates in the same order as the numbering system
 					if (atom.getElement() != ChemEl.C){
 						heteroatoms.add(atom);
 						elementOfHeteroAtom.add(atom.getElement());
+						// MolLangData: store the original locant of the heteroatom
+						heteroatomOriginalLocants.put(atom.getElement(), atom.getLocants().get(0));
 					}
 				}
 				if (locants.length == heteroatoms.size()){//as many locants as there are heteroatoms to assign
@@ -1300,9 +1338,15 @@ class FusedRingBuilderForOutput {
 						// initialize two pointers, one for the parent ring and one for the benzo ring
 						int parentRingPointer = 0;
 						int benzoRingPointer = 0;
+
+						// MolLangData: we need to store the relocated locants of the heteroatoms
+						Map<ChemEl, String> heteroatomRelocatedLocants = new HashMap<>();
+
 						for (int i=0; i< heteroatoms.size(); i++) {
 							Atom heteroatom = fusedRing.getAtomByLocantOrThrow(locants[i]);
 							heteroatom.setElement(elementOfHeteroAtom.get(i));
+							// MolLangData: store the relocated locant of the heteroatom
+							heteroatomRelocatedLocants.put(elementOfHeteroAtom.get(i), locants[i]);
 
 							// we should determine the element is on the the benzo or not
 							Element heteroElement = null;
@@ -1329,6 +1373,15 @@ class FusedRingBuilderForOutput {
 						}
 
 						locantEl.detach();
+						// MolLangData: return the maps if heteroatomsToProcess is null/empty, else return null
+						if (heteroatomsToProcess == null || heteroatomsToProcess.isEmpty()) {
+							Map<String, Map<ChemEl, String>> result = new HashMap<>();
+							result.put("original", heteroatomOriginalLocants);
+							result.put("relocated", heteroatomRelocatedLocants);
+							return result;
+						} else {
+							return null;
+						}
 					}
 				}
 				else if (locants.length > 1){
@@ -1336,6 +1389,7 @@ class FusedRingBuilderForOutput {
 				}
 			}
 		}
+		return null;
 	}
 
 	private boolean locantsCouldApplyToHeteroatomPositions(String[] locants, Element benzoEl) {
