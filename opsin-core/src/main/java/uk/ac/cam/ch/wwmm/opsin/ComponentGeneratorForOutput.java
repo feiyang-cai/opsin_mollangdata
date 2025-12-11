@@ -2,13 +2,17 @@ package uk.ac.cam.ch.wwmm.opsin;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1931,10 +1935,6 @@ class ComponentGeneratorForOutput {
 		if(previous != null) {
 			String previousElType = previous.getName();
 			if(previousElType.equals(SPIRO_EL)){
-				// MolLangData warning: we do not support this type of spirio rings, like "dispiro[5.1.7.2]heptadecane" or "pentaspiro[2.0.24.0.27.0.210.0.213.03]pentadecane"
-				// The former one is not hard, but the later one, we are having a hard time to support it.
-				// Please carefully check the results.
-				buildState.addWarning(OpsinWarning.OpsinWarningType.MolLangData_NOT_SUPPORTED_NOMENCLATURE, "MolLangData does not support this type of spirio rings, please carefully check the results.");
 				processSpiroSystem(group, previous);
 			} else if(previousElType.equals(VONBAEYER_EL)) {
 				processVonBaeyerSystem(group, previous);
@@ -2053,12 +2053,266 @@ class ComponentGeneratorForOutput {
 				numOfOpenedBrackets++;
 			}
 		}
+
+		// MolLangData: derive ring membership / per-ring atom ordering from the generated SMILES without modifying it.
+		// Rings are monocyclic components (IUPAC spiro recommendations) and the resulting graph is a cactus:
+		// each ring corresponds to a single ring-closure label.
+		//
+		// No try/catch here by design: if invariants are violated (AssertionError) or parsing fails,
+		// let it throw so downstream can treat it as an error.
+		SpiroRingAnalysis analysis = analyzeSpiroRingsFromSmiles(smiles);
+		List<Element> spiroTokenEls = buildSpiroRingComponentElsAndAtomMappingTokens(numberOfSpiros, analysis);
+		for (Element spiroTokenEl : spiroTokenEls) {
+			chainGroup.addChild(spiroTokenEl);
+		}
+
 		chainGroup.getAttribute(VALUE_ATR).setValue(smiles);
 		chainGroup.getAttribute(TYPE_ATR).setValue(RING_TYPE_VAL);
+		// MolLangData: set the subtype attribute to "spiroSystem"
+		chainGroup.getAttribute(SUBTYPE_ATR).setValue("spiroSystem");
 		if (chainGroup.getAttribute(USABLEASJOINER_ATR) != null) {
 			chainGroup.removeAttribute(chainGroup.getAttribute(USABLEASJOINER_ATR));
 		}
 		spiroEl.detach();
+	}
+
+	private static final class SpiroParsedGraph {
+		final int atomCount;
+		final List<Set<Integer>> adjacency; // 1-based indexing: adjacency.get(1) is atom 1
+		final Map<Integer, int[]> ringClosureEdgesByLabel; // label -> [a,b] (a!=b)
+
+		SpiroParsedGraph(int atomCount, List<Set<Integer>> adjacency, Map<Integer, int[]> ringClosureEdgesByLabel) {
+			this.atomCount = atomCount;
+			this.adjacency = adjacency;
+			this.ringClosureEdgesByLabel = ringClosureEdgesByLabel;
+		}
+	}
+
+	private static final class SpiroRingAnalysis {
+		final int atomCount;
+		final int ringCount;
+		final Map<Integer, List<Integer>> ringIndexToOrderedAtomIndices;
+
+		SpiroRingAnalysis(
+				int atomCount,
+				int ringCount,
+				Map<Integer, List<Integer>> ringIndexToOrderedAtomIndices
+		) {
+			this.atomCount = atomCount;
+			this.ringCount = ringCount;
+			this.ringIndexToOrderedAtomIndices = ringIndexToOrderedAtomIndices;
+		}
+	}
+
+	/**
+	 * Parses the (simple) carbon-only SMILES produced by {@link #processSpiroSystem(Element, Element)} into a graph.
+	 * Only supports the constructs used by that generator: 'C', parentheses, and ring-closure labels (0-9 and %nn...).
+	 */
+	private static SpiroParsedGraph parseSpiroSmilesToGraph(String smiles) {
+		int atomCount = 0;
+		int currentAtom = 0;
+		Deque<Integer> branchStack = new ArrayDeque<>();
+		Map<Integer, Integer> openRingLabelToAtom = new HashMap<>();
+		Map<Integer, int[]> closureEdgesByLabel = new HashMap<>();
+		List<Set<Integer>> adjacency = new ArrayList<>();
+		adjacency.add(Collections.emptySet()); // pad for 1-based indexing
+
+		for (int i = 0; i < smiles.length(); i++) {
+			char c = smiles.charAt(i);
+			if (c == 'C') {
+				atomCount++;
+				adjacency.add(new LinkedHashSet<>());
+				if (currentAtom != 0) {
+					adjacency.get(currentAtom).add(atomCount);
+					adjacency.get(atomCount).add(currentAtom);
+				}
+				currentAtom = atomCount;
+			} else if (c == '(') {
+				branchStack.push(currentAtom);
+			} else if (c == ')') {
+			if (branchStack.isEmpty()) {
+				throw new AssertionError("Unbalanced ')' in SMILES");
+			}
+				currentAtom = branchStack.pop();
+			} else if (c == '%' || (c >= '0' && c <= '9')) {
+				if (currentAtom == 0) {
+					throw new AssertionError("Ring label appears before first atom");
+				}
+
+				int label;
+				if (c == '%') {
+					int j = i + 1;
+					if (j >= smiles.length() || !Character.isDigit(smiles.charAt(j))) {
+						throw new AssertionError("Bad % ring label in SMILES");
+					}
+					StringBuilder digits = new StringBuilder();
+					while (j < smiles.length() && Character.isDigit(smiles.charAt(j))) {
+						digits.append(smiles.charAt(j));
+						j++;
+					}
+					label = Integer.parseInt(digits.toString());
+					i = j - 1; // advance past digits
+				} else {
+					label = c - '0';
+				}
+
+				Integer otherAtom = openRingLabelToAtom.remove(label);
+				if (otherAtom == null) {
+					openRingLabelToAtom.put(label, currentAtom);
+				} else {
+					// close ring
+					adjacency.get(currentAtom).add(otherAtom);
+					adjacency.get(otherAtom).add(currentAtom);
+					if (closureEdgesByLabel.put(label, new int[]{otherAtom, currentAtom}) != null) {
+						throw new AssertionError("Ring label used more than twice: " + label);
+					}
+				}
+			} else {
+				// ignore characters not used by our generator (e.g. bond symbols)
+			}
+		}
+
+		if (!branchStack.isEmpty()) {
+			throw new AssertionError("Unbalanced '(' in SMILES");
+		}
+		if (!openRingLabelToAtom.isEmpty()) {
+			throw new AssertionError("Unclosed ring label(s) in SMILES: " + openRingLabelToAtom.keySet());
+		}
+
+		return new SpiroParsedGraph(atomCount, adjacency, closureEdgesByLabel);
+	}
+
+	private static List<Integer> findPathExcludingEdge(SpiroParsedGraph g, int start, int goal, int exA, int exB) {
+		Deque<Integer> q = new ArrayDeque<>();
+		int[] prev = new int[g.atomCount + 1];
+		Arrays.fill(prev, -1);
+		prev[start] = start;
+		q.add(start);
+
+		while (!q.isEmpty()) {
+			int u = q.removeFirst();
+			if (u == goal) {
+				break;
+			}
+			for (int v : g.adjacency.get(u)) {
+				// exclude the ring-closure edge (both directions)
+				if ((u == exA && v == exB) || (u == exB && v == exA)) {
+					continue;
+				}
+				if (prev[v] != -1) {
+					continue;
+				}
+				prev[v] = u;
+				q.addLast(v);
+			}
+		}
+
+		if (prev[goal] == -1) {
+			throw new AssertionError("No path found between " + start + " and " + goal + " when excluding edge");
+		}
+
+		List<Integer> path = new ArrayList<>();
+		int cur = goal;
+		while (true) {
+			path.add(cur);
+			if (cur == start) {
+				break;
+			}
+			cur = prev[cur];
+		}
+		Collections.reverse(path);
+		return path;
+	}
+
+	/**
+	 * Analyzes spiro rings from the SMILES produced by {@link #processSpiroSystem(Element, Element)}.
+	 * Ring indices are assigned by ascending ring-closure label.
+	 */
+	private static SpiroRingAnalysis analyzeSpiroRingsFromSmiles(String smiles) {
+		SpiroParsedGraph g = parseSpiroSmilesToGraph(smiles);
+
+		List<Integer> labels = new ArrayList<>(g.ringClosureEdgesByLabel.keySet());
+		Collections.sort(labels);
+
+		Map<Integer, Integer> labelToRingIndex = new HashMap<>();
+		for (int i = 0; i < labels.size(); i++) {
+			labelToRingIndex.put(labels.get(i), i + 1); // 1-based ring indices
+		}
+
+		Map<Integer, List<Integer>> ringIndexToOrderedAtomIndices = new LinkedHashMap<>();
+		int[] ringMembershipCountByAtom = new int[g.atomCount + 1];
+
+		for (int label : labels) {
+			int ringIndex = labelToRingIndex.get(label);
+			int[] edge = g.ringClosureEdgesByLabel.get(label);
+			int a = edge[0];
+			int b = edge[1];
+			List<Integer> path = findPathExcludingEdge(g, a, b, a, b);
+			ringIndexToOrderedAtomIndices.put(ringIndex, path);
+			for (int atom : path) {
+				ringMembershipCountByAtom[atom]++;
+			}
+		}
+
+		// Validate: every atom is in at least one ring (monocyclic components).
+		for (int atom = 1; atom <= g.atomCount; atom++) {
+			if (ringMembershipCountByAtom[atom] == 0) {
+				throw new AssertionError("Atom " + atom + " was not assigned to any ring");
+			}
+		}
+
+		return new SpiroRingAnalysis(g.atomCount, labels.size(), ringIndexToOrderedAtomIndices);
+	}
+
+	private static List<Element> buildSpiroRingComponentElsAndAtomMappingTokens(int numberOfSpiros, SpiroRingAnalysis analysis) {
+		List<Element> spiroTokenEls = new ArrayList<>();
+
+		// 1) One spiroSystemComponent element per ring, ring 1..n, with numberofcarbons attribute.
+		for (int ringIndex = 1; ringIndex <= analysis.ringCount; ringIndex++) {
+			List<Integer> orderedAtoms = analysis.ringIndexToOrderedAtomIndices.get(ringIndex);
+			if (orderedAtoms == null) {
+				throw new AssertionError("Missing ring atom ordering for ringIndex=" + ringIndex);
+			}
+			TokenEl ringEl = new TokenEl(SPIROSYSTEMCOMPONENT_EL);
+			ringEl.addAttribute("ringIndex", Integer.toString(ringIndex));
+			ringEl.addAttribute("numberOfCarbons", Integer.toString(orderedAtoms.size()));
+			spiroTokenEls.add(ringEl);
+		}
+
+		// 2) One spiroLabels element containing per-atom mapping: (posInRing1,posInRing2,...)/(...)...
+		int[][] atomPosByRing = new int[analysis.atomCount + 1][analysis.ringCount + 1]; // [atom][ring] -> 1-based position
+		for (int ringIndex = 1; ringIndex <= analysis.ringCount; ringIndex++) {
+			List<Integer> orderedAtoms = analysis.ringIndexToOrderedAtomIndices.get(ringIndex);
+			for (int pos = 0; pos < orderedAtoms.size(); pos++) {
+				int atomIdx = orderedAtoms.get(pos);
+				atomPosByRing[atomIdx][ringIndex] = pos + 1;
+			}
+		}
+
+		StringBuilder mapping = new StringBuilder();
+		for (int atomIdx = 1; atomIdx <= analysis.atomCount; atomIdx++) {
+			if (atomIdx > 1) {
+				mapping.append('/');
+			}
+			mapping.append('(');
+			for (int ringIndex = 1; ringIndex <= analysis.ringCount; ringIndex++) {
+				if (ringIndex > 1) {
+					mapping.append(',');
+				}
+				int pos = atomPosByRing[atomIdx][ringIndex];
+				if (pos != 0) {
+					mapping.append(pos);
+				}
+			}
+			mapping.append(')');
+		}
+
+		TokenEl atomMappingToken = new TokenEl("spiroLabels");
+		atomMappingToken.addAttribute("ringCount", Integer.toString(analysis.ringCount));
+		atomMappingToken.addAttribute("atomCount", Integer.toString(analysis.atomCount));
+		atomMappingToken.addAttribute("originalLabels", mapping.toString());
+		spiroTokenEls.add(atomMappingToken);
+		return spiroTokenEls;
 	}
 
 	/**

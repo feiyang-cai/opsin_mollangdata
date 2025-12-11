@@ -28,12 +28,21 @@ ignoreWhenWritingXML == Tells the parser not to form an XML element out of these
         frontLocantsExpected CDATA #IMPLIED
         functionalIDs CDATA #IMPLIED
         fusedRingNumbering CDATA #IMPLIED
+        fusedRing1 CDATA #IMPLIED
+        fusedRing2 CDATA #IMPLIED
+        fusedRing3 CDATA #IMPLIED
+        fusedRing4 CDATA #IMPLIED
+        fusedRing5 CDATA #IMPLIED
+        fusedRing6 CDATA #IMPLIED
+        fusedRing7 CDATA #IMPLIED
         homology CDATA #IMPLIED
         iminoLike CDATA #IMPLIED
         labels CDATA #IMPLIED
         locant CDATA #IMPLIED
         naturalEntIsOpposite CDATA #IMPLIED
+        originalLabels CDATA #IMPLIED
         outIDs CDATA #IMPLIED
+        ring3 CDATA #IMPLIED
         suffixAppliesTo CDATA #IMPLIED
         suffixAppliesToByDefault CDATA #IMPLIED
         usableAsAJoiner CDATA #IMPLIED

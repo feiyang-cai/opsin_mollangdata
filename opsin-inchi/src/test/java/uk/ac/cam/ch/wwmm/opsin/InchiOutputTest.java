@@ -25,7 +25,7 @@ public class InchiOutputTest {
 	public void testStaticToInChI() throws StructureBuildingException{
 		SMILESFragmentBuilder sBuilder = new SMILESFragmentBuilder(new IDManager());
 		Fragment f = sBuilder.build("C([H])([H])([H])C(=O)N([H])[H]");
-		OpsinResult result = new OpsinResult(f, OPSIN_RESULT_STATUS.SUCCESS, "", "");
+		OpsinResult result = new OpsinResult(f, OPSIN_RESULT_STATUS.SUCCESS, "", "test", "", "");
 		assertEquals("InChI=1/C2H5NO/c1-2(3)4/h1H3,(H2,3,4)/f/h3H2", NameToInchi.convertResultToInChI(result));
 	}
 	
@@ -33,7 +33,7 @@ public class InchiOutputTest {
 	public void testStaticToStdInChI() throws StructureBuildingException{
 		SMILESFragmentBuilder sBuilder = new SMILESFragmentBuilder(new IDManager());
 		Fragment f = sBuilder.build("C([H])([H])([H])C(=O)N([H])[H]");
-		OpsinResult result = new OpsinResult(f, OPSIN_RESULT_STATUS.SUCCESS, "", "");
+		OpsinResult result = new OpsinResult(f, OPSIN_RESULT_STATUS.SUCCESS, "", "test", "", "");
 		assertEquals("InChI=1S/C2H5NO/c1-2(3)4/h1H3,(H2,3,4)", NameToInchi.convertResultToStdInChI(result));
 	}
 	
@@ -41,7 +41,7 @@ public class InchiOutputTest {
 	public void testStaticToStdInChIKey() throws StructureBuildingException{
 		SMILESFragmentBuilder sBuilder = new SMILESFragmentBuilder(new IDManager());
 		Fragment f = sBuilder.build("C([H])([H])([H])C(=O)N([H])[H]");
-		OpsinResult result = new OpsinResult(f, OPSIN_RESULT_STATUS.SUCCESS, "", "");
+		OpsinResult result = new OpsinResult(f, OPSIN_RESULT_STATUS.SUCCESS, "", "test", "", "");
 		assertEquals("DLFVBJFMPXGRIB-UHFFFAOYSA-N", NameToInchi.convertResultToStdInChIKey(result));
 	}
 	

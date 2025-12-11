@@ -24,7 +24,9 @@ public class OpsinWarning {
 		/**MolLangData: we don't support this type of nomenclature, please carefully check the results.*/
 		MolLangData_NOT_SUPPORTED_NOMENCLATURE("MolLangData does not support this type of nomenclature, please carefully check the results."),
 		/**MolLangData: this is a debug warning, because we don't have any idea when the code can run into this situation */
-		MolLangData_DEBUG_WARNING("MolLangData: this is a debug warning, because we don't have any idea when the code can run into this situation");
+		MolLangData_DEBUG_WARNING("MolLangData: this is a debug warning, because we don't have any idea when the code can run into this situation"),
+		/**MolLangData: an error condition was encountered while generating MolLangData-specific output */
+		MolLangData_ERROR("MolLangData: an error condition was encountered while generating MolLangData-specific output");
 
 
 		private final String explanation;
