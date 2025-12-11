@@ -4317,6 +4317,10 @@ class ComponentProcessorForOutput {
 				}
 				frag.getFirstAtom().setLambdaConventionValency(Integer.parseInt(lambdaConventionEl.getAttributeValue(LAMBDA_ATR)));
 			}
+			// MolLangData: before detaching the lambdaConvention element, we should move it as a child of the group element
+			Element newLambdaConventionEl = lambdaConventionEl.copy();
+			subOrRoot.addChild(newLambdaConventionEl);
+
 			lambdaConventionEl.detach();
 		}
 	}

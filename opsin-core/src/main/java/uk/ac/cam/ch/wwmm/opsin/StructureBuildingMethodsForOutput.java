@@ -641,8 +641,8 @@ class StructureBuildingMethodsForOutput{
 			if(bondOrder <= 1) {
 				// MolLangData: before detaching the unsaturator element, we should move it as a child of the group element
 				Element newUnsaturator = unsaturator.copy();
-				// if the unsaturator is an "ane", we should not add it as a child of the group element
-				if (!unsaturator.getValue().equals("ane")) {
+				// if the unsaturator is an "ane" or "an", we should not add it as a child of the group element
+				if (!unsaturator.getValue().equals("ane") && !unsaturator.getValue().equals("an")) {
 					groups.get(0).addChild(newUnsaturator);
 				}
 				unsaturator.detach();

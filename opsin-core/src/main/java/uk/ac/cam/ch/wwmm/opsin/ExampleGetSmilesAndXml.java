@@ -42,7 +42,8 @@ public class ExampleGetSmilesAndXml {
 		//String chemicalName = "3,4-epoxybutanol";
 		//String chemicalName = "5,5'-spirobi[benzo[b]phosphindolium]";
 		//String chemicalName = "(+)-D-glucose";
-		String chemicalName = "(+)-2-benzyl-2-methoxybenzo[1,2-b:3,4-b′]difuran-3(2H)-one";
+		//String chemicalName = "(+)-2-benzyl-2-methoxybenzo[1,2-b:3,4-b′]difuran-3(2H)-one";
+		//String chemicalName = "1,3-oxazol-2-one";
 		
 		// spiro system test
 		// String chemicalName = "(2R,4S,4aS)-rel-11-fluoro-2,4-dimethyl-8-(methylsulfinyl)-1,2,4,4a-tetrahydro-2′H,6H-spiro[1,4-oxazino[4,3-a][1,2]oxazolo[4,5-g]quinoline-5,5′-pyrimidine]-2′,4′,6′(1′H,3′H)-trione";
@@ -51,6 +52,7 @@ public class ExampleGetSmilesAndXml {
 
 		//String chemicalName = "dispiro[5.1.7.2]heptadecane";
 		//String chemicalName = "pentaspiro[2.0.24.0.27.0.210.0.213.03]pentadecane";
+		String chemicalName = "nonaspiro[2.0.0.0.26.0.29.05.0.0.213.0.216.012.04.0.219.03]henicosane";
 		//String chemicalName = "spiro[3.4]octane";
 		//String chemicalName = "dispiro[fluorene-9,1'-cyclohexane-4',1''-indene]";
 		//String chemicalName = "1,1'-spirobiindene";
@@ -134,9 +136,11 @@ public class ExampleGetSmilesAndXml {
 
 
 		// need to deal with the following:
-		//String chemicalName = "N-[3-[2-[4-(2-methylquinolin-5-yl)piperazin-1-yl]ethyl]phenyl]pyrazine-2-carboxamide";
+		// String chemicalName = "N-[3-[2-[4-(2-methylquinolin-5-yl)piperazin-1-yl]ethyl]phenyl]pyrazine-2-carboxamide";
 
-		//String chemicalName = "N'-methyl-4,7,10,13-tetraoxahexadecanediamide";
+		// String chemicalName = "N'-methyl-4,7,10,13-tetraoxahexadecanediamide";
+		//String chemicalName = "1H-2lambda5-spiro[isoquinoline-2,2'-pyrido[1,2-a]pyrazin]-2-ylium";
+		//String chemicalName = "benzeneacetic acid";
 
 		try {
 			System.out.println("Parsing chemical name: " + chemicalName);
