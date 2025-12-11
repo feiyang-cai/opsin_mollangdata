@@ -353,7 +353,7 @@ class FragmentManager {
 	Fragment copyAndRelabelFragment(Fragment originalFragment, int primesToAdd) {
 		Element tokenEl = new TokenEl("");
 		tokenEl.addAttribute(TYPE_ATR, originalFragment.getType());
-		tokenEl.addAttribute(SUBTYPE_ATR, originalFragment.getSubType());
+		tokenEl.addAttribute(SUBTYPE_ATR, originalFragment.getSubType(true));
 		Fragment newFragment = new Fragment(tokenEl);
 		HashMap<Atom, Atom> oldToNewAtomMap = new HashMap<>();//maps old Atom to new Atom
 		List<Atom> atomList =originalFragment.getAtomList();

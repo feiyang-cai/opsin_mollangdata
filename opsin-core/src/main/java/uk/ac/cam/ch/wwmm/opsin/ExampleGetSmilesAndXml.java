@@ -26,7 +26,7 @@ public class ExampleGetSmilesAndXml {
 		//String chemicalName = "(3E)-3-methyl-N-[(3Z)-2-methylpenta-1,3-dien-3-yl]hexa-3,5-dien-2-imine";
 		//String chemicalName = "spiro-9,9'-bifluoren";
 		//String chemicalName = "2-phenyl-3,4-dihydro-2H-1-benzopyran";
-		String chemicalName = "1-benzopyran";
+		//String chemicalName = "1-benzopyran";
 		//String chemicalName = "(6aR,11aR)-6a,11a-dihydro-6H-[1]benzofuro[3,2-c]chromene";
 
 		// different stereochemistry cases
@@ -38,9 +38,15 @@ public class ExampleGetSmilesAndXml {
 
 		//String chemicalName = "erythro 2,3-butanediol";
 		//String chemicalName = "2-deoxy-D-erythro-pentose";
+		//String chemicalName = "pentanthioylium";
+		//String chemicalName = "3,4-epoxybutanol";
+		//String chemicalName = "5,5'-spirobi[benzo[b]phosphindolium]";
+		//String chemicalName = "(+)-D-glucose";
+		String chemicalName = "(+)-2-benzyl-2-methoxybenzo[1,2-b:3,4-b′]difuran-3(2H)-one";
 		
 		// spiro system test
 		// String chemicalName = "(2R,4S,4aS)-rel-11-fluoro-2,4-dimethyl-8-(methylsulfinyl)-1,2,4,4a-tetrahydro-2′H,6H-spiro[1,4-oxazino[4,3-a][1,2]oxazolo[4,5-g]quinoline-5,5′-pyrimidine]-2′,4′,6′(1′H,3′H)-trione";
+		//String chemicalName = "spiro-9,9'-bifluoren";
 
 
 		//String chemicalName = "dispiro[5.1.7.2]heptadecane";
@@ -69,6 +75,8 @@ public class ExampleGetSmilesAndXml {
 		//String chemicalName = "12-methyl-2-azatricyclo[4.4.3.0¹,⁶]trideca-2,4,7,9-tetraene";
 		//String chemicalName = "6,13-ethano-6,13-methanodibenzo[b,g][1,6]diazecine";
 		//String chemicalName = "(10R)-7-amino-16-cyclopropyl-12-fluoro-2,10-dimethyl-15-oxo-10,15,16,17-tetrahydro-2H-8,4-(azeno)pyrazolo[4,3-h][2,5,11]benzoxadiazacyclotetradecine-3-carbonitrile";
+		//String chemicalName = "11-chloro-9,10-(epoxymethano)anthracene";
+		//String chemicalName = "2H-3,5-(epoxymethano)furo[3,4-b]pyran";
 
 
 		// conjunctive nomenclature test

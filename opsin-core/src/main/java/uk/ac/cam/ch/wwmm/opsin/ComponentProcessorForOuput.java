@@ -3053,8 +3053,6 @@ class ComponentProcessorForOutput {
 		List<Element> conjunctiveGroups = subOrRoot.getChildElements(CONJUNCTIVESUFFIXGROUP_EL);
 		for (Element group : conjunctiveGroups) {
 			suffixFragments.add(group.getFrag());
-			// MolLangData: let's have a debug warning here, we have no idea when this is happening
-			state.addWarning(OpsinWarning.OpsinWarningType.MolLangData_DEBUG_WARNING, "MolLangData does not know when the code can run into this situation for this conjunctive suffix group; please report this issue to the developers");
 		}
 		FragmentTools.assignElementLocants(suffixableFragment, suffixFragments);
 		for (int i = groups.size()-2; i>=0; i--) {
@@ -4223,24 +4221,27 @@ class ComponentProcessorForOutput {
 			List<Atom> bridgeFragmentAtoms = bridgeFragment.getAtomList();
 			// MolLangData: get the bridge element corresponding to the bridge fragment
 			Element bridgeElement = bridgeToBridgeElement.get(bridgeFragment);
-			// have a locant list to store the locants of the bridge element
-			List<String> bridgeLabels = new ArrayList<>();
+			// have a locant list to store the locants of the bridge element, which should be same size as the bridge fragment atoms
+			String[] bridgeLabels = new String[bridgeFragmentAtoms.size()];
 
 			Atom[] ringAtoms = bridgeToRingAtoms.get(bridgeFragment);
 			if (getLocantNumber(ringAtoms[0]) <= getLocantNumber(ringAtoms[1])){
 				for (int i = bridgeFragmentAtoms.size() - 1; i >=0; i--) {
 					// MolLangData: get the locant of the bridge atom
 					String bridgeAtomLocant = String.valueOf(++highestLocant);
-					bridgeLabels.add(bridgeAtomLocant);
+					//bridgeLabels.add(bridgeAtomLocant);
+					// set the i th bridge label to the bridge atom locant
+					bridgeLabels[i] = bridgeAtomLocant;
 
 					bridgeFragmentAtoms.get(i).addLocant(bridgeAtomLocant);
 				}
 			}
 			else{
-				for (Atom atom : bridgeFragmentAtoms) {
+				for (int i = 0; i < bridgeFragmentAtoms.size(); i++) {
+					Atom atom = bridgeFragmentAtoms.get(i);
 					// MolLangData: get the locant of the bridge atom
 					String bridgeAtomLocant = String.valueOf(++highestLocant);
-					bridgeLabels.add(bridgeAtomLocant);
+					bridgeLabels[i] = bridgeAtomLocant;
 
 					atom.addLocant(bridgeAtomLocant);
 				}

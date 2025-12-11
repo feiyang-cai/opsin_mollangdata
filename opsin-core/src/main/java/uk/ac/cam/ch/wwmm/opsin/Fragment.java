@@ -281,9 +281,42 @@ class Fragment implements Iterable<Atom> {
 	 * Returns "" if undefined
 	 * @return
 	 */
+	// MolLangData: if the subtype is newly added by MolLangData,
+	// we need to return its first child's subtype value
+	String getSubType(boolean canReturnMolLangDataSubType) {
+		if (! canReturnMolLangDataSubType) {
+			return getSubType();
+		}
+		else {
+		    String subType = tokenEl.getAttributeValue(SUBTYPE_ATR);
+		    return subType != null ? subType : "";
+		}
+	}
+
 	String getSubType() {
+		// newly added subtype by MolLangData: bridgeSystem, fusedRing, Bi/Ter, spiro system, Old Method Polycyclic, Non-Identical Polycyclic
 		String subType = tokenEl.getAttributeValue(SUBTYPE_ATR);
-		return subType != null ? subType : "";
+		if (subType != null) {
+			if (subType.equals("bridgeSystem")) {
+				// get the first child element of the tokenEl, which should be a bridgeParent element
+				Element firstChild = tokenEl.getFirstChildElement(BRIDGEPARENT_EL);
+				return firstChild.getAttributeValue(SUBTYPE_ATR);
+			}
+			else if (subType.equals("fusedRing")) {
+				// get the first child element of the tokenEl, which should be a fusedRing element
+				Element firstChild = tokenEl.getFirstChildElement(FUSEDCHILDRING_EL);
+				return firstChild.getAttributeValue(SUBTYPE_ATR);
+			}
+			else if (subType.equals("Bi/Ter") || subType.equals("spiro system") || subType.equals("Old Method Polycyclic") || subType.equals("Non-Identical Polycyclic") || subType.equals("Polycyclic")) {
+				// get the first child element of the tokenEl, which should be spiroSystem element
+				Element firstChild = tokenEl.getFirstChildElement(SPIROSYSTEMCOMPONENT_EL);
+				return firstChild.getAttributeValue(SUBTYPE_ATR);
+			}
+			else {
+				return subType;
+			}
+		}
+		return "";
 	}
 
 	/**

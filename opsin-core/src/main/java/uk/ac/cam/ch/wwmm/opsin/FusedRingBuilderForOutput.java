@@ -1210,8 +1210,22 @@ class FusedRingBuilderForOutput {
 		Fragment fusedRing =parentRing;
 		Map<String, Map<ChemEl, String>> heteroatomLocantMaps = setBenzoHeteroatomPositioning(benzoEl, fusedRing);
 
+		// MolLangData: we need to get the heteroatoms from the parent ring tokenEl, then add them once the numbering is done
+		List<Element> parentRingHeteroatoms = new ArrayList<>();
+		for (Element child : parentRing.getTokenEl().getChildElements()) {
+			if (child.getName().equals(HETEROATOM_EL)) {
+				parentRingHeteroatoms.add(child.copy());
+				child.detach();
+			}
+		}
+
 		// MolLangData: create a fusedRingNumbering element to store the numbering information
 		createFusedRingNumberingElement(parentRing, parentRingAtomToLabel, fusedRingAtomToLabelList);
+
+		// MolLangData: add the heteroatoms to the parent ring tokenEl
+		for (Element heteroatom : parentRingHeteroatoms) {
+			parentRing.getTokenEl().addChild(heteroatom);
+		}
 
 		// MolLangData: if heteroatomLocantMaps is not null, we need to add it to the parent ring tokenEl
 		if (heteroatomLocantMaps != null) {
