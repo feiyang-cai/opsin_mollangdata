@@ -48,11 +48,12 @@ public class ExampleGetSmilesAndXml {
 		// spiro system test
 		// String chemicalName = "(2R,4S,4aS)-rel-11-fluoro-2,4-dimethyl-8-(methylsulfinyl)-1,2,4,4a-tetrahydro-2′H,6H-spiro[1,4-oxazino[4,3-a][1,2]oxazolo[4,5-g]quinoline-5,5′-pyrimidine]-2′,4′,6′(1′H,3′H)-trione";
 		//String chemicalName = "spiro-9,9'-bifluoren";
+		String chemicalName = "9,9'-spirobifluoren";
 
 
 		//String chemicalName = "dispiro[5.1.7.2]heptadecane";
 		//String chemicalName = "pentaspiro[2.0.24.0.27.0.210.0.213.03]pentadecane";
-		String chemicalName = "nonaspiro[2.0.0.0.26.0.29.05.0.0.213.0.216.012.04.0.219.03]henicosane";
+		//String chemicalName = "nonaspiro[2.0.0.0.26.0.29.05.0.0.213.0.216.012.04.0.219.03]henicosane";
 		//String chemicalName = "spiro[3.4]octane";
 		//String chemicalName = "dispiro[fluorene-9,1'-cyclohexane-4',1''-indene]";
 		//String chemicalName = "1,1'-spirobiindene";

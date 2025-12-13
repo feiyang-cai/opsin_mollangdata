@@ -35,6 +35,7 @@ ignoreWhenWritingXML == Tells the parser not to form an XML element out of these
         fusedRing5 CDATA #IMPLIED
         fusedRing6 CDATA #IMPLIED
         fusedRing7 CDATA #IMPLIED
+        parsedByMolLangData CDATA #IMPLIED
         homology CDATA #IMPLIED
         iminoLike CDATA #IMPLIED
         labels CDATA #IMPLIED
