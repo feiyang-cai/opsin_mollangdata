@@ -108,6 +108,9 @@ class ComponentGeneratorForOutput {
 	 * @throws ComponentGenerationException
 	 */
 	void processParse(Element parse) throws ComponentGenerationException {
+		// Check for tokens with parsedByMolLangData="false" and add warnings
+		checkTokensForMolLangDataParsing(parse);
+		
 		List<Element> substituentsAndRoot = OpsinTools.getDescendantElementsWithTagNames(parse, new String[]{SUBSTITUENT_EL, ROOT_EL});
 
 		for (Element subOrRoot: substituentsAndRoot) {
@@ -3311,6 +3314,40 @@ class ComponentGeneratorForOutput {
 				Element locantededHeteroAtomRepl = bracket.getChild(i);
 				locantededHeteroAtomRepl.detach();
 				rightMostGroupParent.insertChild(locantededHeteroAtomRepl, 0);
+			}
+		}
+	}
+
+	/**
+	 * Checks all TokenEl elements in the parse tree for the parsedByMolLangData attribute.
+	 * If the attribute is set to "false", adds a warning.
+	 * @param parse The parse tree to check
+	 */
+	private void checkTokensForMolLangDataParsing(Element parse) {
+		Deque<Element> stack = new ArrayDeque<>();
+		for (int i = parse.getChildCount() - 1; i >= 0; i--) {
+			stack.add(parse.getChild(i));
+		}
+		while (!stack.isEmpty()) {
+			Element currentElement = stack.removeLast();
+			if (currentElement instanceof TokenEl) {
+				TokenEl tokenEl = (TokenEl) currentElement;
+				String parsedByMolLangData = tokenEl.getAttributeValue("parsedByMolLangData");
+				// Also check for isParsedByMolLangData as the user mentioned it
+				if (parsedByMolLangData == null) {
+					parsedByMolLangData = tokenEl.getAttributeValue("isParsedByMolLangData");
+				}
+				if ("false".equals(parsedByMolLangData)) {
+					String tokenName = tokenEl.getValue();
+					if (tokenName == null || tokenName.isEmpty()) {
+						tokenName = tokenEl.getName();
+					}
+					buildState.addWarning(OpsinWarning.OpsinWarningType.MolLangData_NOT_SUPPORTED_NOMENCLATURE,
+							"token \"" + tokenName + "\" is not parsed by the MolLangData; please carefully check the results");
+				}
+			}
+			for (int i = currentElement.getChildCount() - 1; i >= 0; i--) {
+				stack.add(currentElement.getChild(i));
 			}
 		}
 	}
