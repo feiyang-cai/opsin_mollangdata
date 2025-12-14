@@ -2411,6 +2411,10 @@ class ComponentGeneratorForOutput {
 	 * @throws ComponentGenerationException
 	 */
 	private void processVonBaeyerSystem(Element chainEl, Element vonBaeyerBracketEl) throws ComponentGenerationException {
+		// MolLangData: add warning for von Baeyer system
+		buildState.addWarning(OpsinWarning.OpsinWarningType.MolLangData_NOT_SUPPORTED_NOMENCLATURE,
+				"von Baeyer system is not supported currently; please carefully check the results");
+		
 		String vonBaeyerBracket = StringTools.removeDashIfPresent(vonBaeyerBracketEl.getValue());
 		Element multiplier = OpsinTools.getPreviousSibling(vonBaeyerBracketEl);
 		int numberOfRings=Integer.parseInt(multiplier.getAttributeValue(VALUE_ATR));
