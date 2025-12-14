@@ -62,6 +62,12 @@
   </distributionManagement>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- OPSIN version number only (without -SNAPSHOT suffix) for JAR naming -->
+    <opsin.version.number>3.0</opsin.version.number>
+    <!-- MolLangData version - can be overridden with -Dmollangdata.version=... -->
+    <mollangdata.version>0.1-SNAPSHOT-mollangdata</mollangdata.version>
+    <!-- MolLangData version number only (without -SNAPSHOT-mollangdata suffix) for JAR naming -->
+    <mollangdata.version.number>0.1</mollangdata.version.number>
   </properties>
   <build>
     <plugins>
