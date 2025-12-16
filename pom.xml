@@ -65,9 +65,9 @@
     <!-- OPSIN version number only (without -SNAPSHOT suffix) for JAR naming -->
     <opsin.version.number>3.0</opsin.version.number>
     <!-- MolLangData version - can be overridden with -Dmollangdata.version=... -->
-    <mollangdata.version>0.1.2-SNAPSHOT-mollangdata</mollangdata.version>
+    <mollangdata.version>0.1.3-SNAPSHOT-mollangdata</mollangdata.version>
     <!-- MolLangData version number only (without -SNAPSHOT-mollangdata suffix) for JAR naming -->
-    <mollangdata.version.number>0.1.2</mollangdata.version.number>
+    <mollangdata.version.number>0.1.3</mollangdata.version.number>
   </properties>
   <build>
     <plugins>
