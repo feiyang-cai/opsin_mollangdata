@@ -29,7 +29,12 @@ public class ExampleGetSmilesAndXml {
 		//String chemicalName = "1-benzopyran";
 		//String chemicalName = "(6aR,11aR)-6a,11a-dihydro-6H-[1]benzofuro[3,2-c]chromene";
 		//String chemicalName = "(6R,7R)-3-[[4-[bis(2-chloroethyl)amino]phenyl]carbamoyloxymethyl]-8-oxidanylidene-7-[(5-oxidanyl-5-oxidanylidene-pentanoyl)amino]-5-thia-1-azabicyclo[4.2.0]oct-2-ene-2-carboxylic acid";
-		String chemicalName = "methylcyclohexane";
+		//String chemicalName = "methylcyclohexane";
+		//String chemicalName = "4-[4-[3-(trifluoromethyl)phenyl]piperazin-1-yl]-5,6,7,8-tetrahydro-[1]benzothiolo[2,3-d]pyrimidine";
+		//String chemicalName = "[1]benzothiolo[2,3-d]pyrimidine";
+		String chemicalName = "1,2-benzothiazole";
+		//String chemicalName = "2-Benzofuran";
+		//String chemicalName = "1,4-benzodioxin";
 
 		// different stereochemistry cases
 

@@ -1201,7 +1201,9 @@ class FusedRingBuilderForOutput {
 		fusedChildRingElForBenzoRing.setValue(benzoRing.getTokenEl().getValue());
 
 		// MolLangData: add the fusedChildRing element for the benzo ring as a child of the parent ring's fusedChildRing element
-		parentRing.getTokenEl().addChild(fusedChildRingElForBenzoRing);
+		// Edit Dec 16, 2025: we insert the fusedChildRingForBenzoRing before the first fusedChildRing element
+		// since we copy all the children of the parent ring into the fusedChildRingForParentRing, so the fusedChildRingForParentRing is always at the first, and we can safely insert the fusedChildRingForBenzoRing before it
+		parentRing.getTokenEl().insertChild(fusedChildRingElForBenzoRing, 0);
 
 
 		// MolLangData: add the fusedChildRing element for the benzo ring as a child of the parent ring's fusedChildRing element
@@ -1220,7 +1222,7 @@ class FusedRingBuilderForOutput {
 		}
 
 		// MolLangData: create a fusedRingNumbering element to store the numbering information
-		createFusedRingNumberingElement(parentRing, parentRingAtomToLabel, fusedRingAtomToLabelList);
+		createFusedRingNumberingElement(parentRing, parentRingAtomToLabel, fusedRingAtomToLabelList, true);
 
 		// MolLangData: add the heteroatoms to the parent ring tokenEl
 		for (Element heteroatom : parentRingHeteroatoms) {
@@ -1253,7 +1255,11 @@ class FusedRingBuilderForOutput {
 					String relocatedString = originalElement.toString() + ": " + originalLocant + " to " + relocatedLocant;
 					heteroatomRelocationEl.setValue(relocatedString);
 					// add the heteroatomRelocation element as a child of the parent ring tokenEl
-					parentRing.getTokenEl().addChild(heteroatomRelocationEl);
+					// Edit Dec 16, 2025: we move the heteroatomRelocation element to the parent ring tokenEl, not the fusedRing tokenEl
+					//parentRing.getTokenEl().addChild(heteroatomRelocationEl);
+					// get the second fusedChildRing element from the parent ring tokenEl, which is the heterocycle ring
+					Element secondFusedChildRing = parentRing.getTokenEl().getChildElements(FUSEDCHILDRING_EL).get(1);
+					secondFusedChildRing.addChild(heteroatomRelocationEl);
 				}
 			}
 			
@@ -1263,8 +1269,9 @@ class FusedRingBuilderForOutput {
 		// MoLangData: set the subtype as a fused ring system
 		parentRing.getTokenEl().getAttribute(SUBTYPE_ATR).setValue("fusedRing");
 		StringBuilder fusedRingName = new StringBuilder();
-		fusedRingName.append(parentRing.getTokenEl().getValue());
+		// Edit Dec 16, 2025: we append the benzo ring value before the parent ring value
 		fusedRingName.append(benzoRing.getTokenEl().getValue());
+		fusedRingName.append(parentRing.getTokenEl().getValue());
 		parentRing.getTokenEl().getAttribute(VALUE_ATR).setValue(fusedRingName.toString());
 		parentRing.getTokenEl().setValue(fusedRingName.toString());
 		
@@ -1327,19 +1334,21 @@ class FusedRingBuilderForOutput {
 						List<Element> benzoHeteroatomsToProcess = new ArrayList<>();
 						List<Element> parentRingHeteroatomsToProcess = new ArrayList<>();
 
-						// first, go through the first fusedChildRing element to get the heteroatoms, this is the parent ring
-						List<Element> firstFusedChildRingChildren = fusedChildRingElements.get(0).getChildElements();
+						// first, go through the second fusedChildRing element to get the heteroatoms, this is the parent ring
+						List<Element> firstFusedChildRingChildren = fusedChildRingElements.get(1).getChildElements();
 						for (Element child : firstFusedChildRingChildren) {
 							if (child.getName().equals(HETEROATOM_EL)) {
 								parentRingHeteroatomsToProcess.add(child);
 							}
 						}
 
-						// second, go through the second fusedChildRing element to get the heteroatoms, this is the benzo ring
-						List<Element> secondFusedChildRingChildren = fusedChildRingElements.get(1).getChildElements();
+						// second, go through the first fusedChildRing element to get the heteroatoms, this is the benzo ring
+						List<Element> secondFusedChildRingChildren = fusedChildRingElements.get(0).getChildElements();
 						for (Element child : secondFusedChildRingChildren) {
 							if (child.getName().equals(HETEROATOM_EL)) {
 								benzoHeteroatomsToProcess.add(child);
+								// MolLangData: we don't think the heteroatoms can go into the benzo ring, throw a mollangdata debug warning
+								state.addWarning(OpsinWarning.OpsinWarningType.MolLangData_DEBUG_WARNING, "In a benzo[heterocycle], the heteroatom is at the benzo ring, which is not allowed at least in MolLangData; please report this issue to the developers");
 							}
 						}
 
@@ -1361,6 +1370,10 @@ class FusedRingBuilderForOutput {
 							heteroatom.setElement(elementOfHeteroAtom.get(i));
 							// MolLangData: store the relocated locant of the heteroatom
 							heteroatomRelocatedLocants.put(elementOfHeteroAtom.get(i), locants[i]);
+							// Edit Dec 16, 2025: we should know if this locant is in the benzo ring, if so, throw a mollangdata debug warning
+							if (benzoAtomList.contains(heteroatom)) {
+								state.addWarning(OpsinWarning.OpsinWarningType.MolLangData_DEBUG_WARNING, "In a benzo[heterocycle], the heteroatom is relocated to the benzo ring, which is not allowed at least in MolLangData; please report this issue to the developers");
+							}
 
 							// we should determine the element is on the the benzo or not
 							Element heteroElement = null;
@@ -1380,9 +1393,13 @@ class FusedRingBuilderForOutput {
 							}
 						}
 						// now, we can move the heteroatoms to the children of the parent ring tokenEl
+						// Edit Dec 16, 2025: we don't think the heteroatoms can go to the benzo ring, so we move them to the fusedRing tokenEl
+						// also, we have already throw a mollangdata debug warning when the heteroatoms go to the benzo ring
+						// MolLangData: is it possible that the heteroatom can go to the benzo ring?
 						for (Element heteroElement : heteroatomsToProcess) {
 							Element newHeteroElement = heteroElement.copy();
-							parentRing.getTokenEl().addChild(newHeteroElement);
+							//parentRing.getTokenEl().addChild(newHeteroElement);
+							fusedChildRingElements.get(1).addChild(newHeteroElement);
 							heteroElement.detach();
 						}
 
@@ -1563,13 +1580,29 @@ class FusedRingBuilderForOutput {
 	 * of the fused ring system. The element contains:
 	 * - labels: The new locants from atomMapFromLocant in parentRing (e.g., "1/2/3/3a/4/5/6/7/7a")
 	 * - originalLabels: For each new label, the original label from each ring (e.g., "(1, )/(2, )/(3, )/(4,1,2)/(, 6,)/(, 5,)/(, 4,)/(,3,)/(5,2,)")
-	 *   Format: (parent, fusedRing1, fusedRing2, ...)
+	 *   Format: (parent, fusedRing1, fusedRing2, ...) by default, or (fusedRing1, fusedRing2, ..., parent) if parentAtLast is true
 	 * 
 	 * @param fusedRing The fused ring fragment after numbering
 	 * @param parentRingAtomToLabel Snapshot of parent ring atom-to-label mapping (null for general fusion)
 	 * @param fusedRingAtomToLabelList List of snapshots of rings being fused into the parent ring atom-to-label mappings (null for general fusion)
 	 */
 	private void createFusedRingNumberingElement(Fragment fusedRing, Map<Atom, String> parentRingAtomToLabel, List<Map<Atom, String>> fusedRingAtomToLabelList) {
+		createFusedRingNumberingElement(fusedRing, parentRingAtomToLabel, fusedRingAtomToLabelList, false);
+	}
+
+	/**
+	 * MolLangData: Creates a fusedRingNumbering element to store the numbering information
+	 * of the fused ring system. The element contains:
+	 * - labels: The new locants from atomMapFromLocant in parentRing (e.g., "1/2/3/3a/4/5/6/7/7a")
+	 * - originalLabels: For each new label, the original label from each ring (e.g., "(1, )/(2, )/(3, )/(4,1,2)/(, 6,)/(, 5,)/(, 4,)/(,3,)/(5,2,)")
+	 *   Format: (parent, fusedRing1, fusedRing2, ...) if parentAtLast is false, or (fusedRing1, fusedRing2, ..., parent) if parentAtLast is true
+	 * 
+	 * @param fusedRing The fused ring fragment after numbering
+	 * @param parentRingAtomToLabel Snapshot of parent ring atom-to-label mapping (null for general fusion)
+	 * @param fusedRingAtomToLabelList List of snapshots of rings being fused into the parent ring atom-to-label mappings (null for general fusion)
+	 * @param parentAtLast If true, parent ring label is placed at the end; if false (default), parent ring label is placed at the beginning
+	 */
+	private void createFusedRingNumberingElement(Fragment fusedRing, Map<Atom, String> parentRingAtomToLabel, List<Map<Atom, String>> fusedRingAtomToLabelList, boolean parentAtLast) {
 		Element parentRingTokenEl = fusedRing.getTokenEl();
 		if (parentRingTokenEl == null) {
 			return;
@@ -1658,10 +1691,25 @@ class FusedRingBuilderForOutput {
 				}
 			}
 			
-			// Format: (parent, fusedRing1, fusedRing2, ...)
-			originalLabelsBuilder.append("(").append(parentLabel);
-			for (String childLabel : childLabels) {
-				originalLabelsBuilder.append(", ").append(childLabel);
+			// Format based on parentAtLast flag
+			originalLabelsBuilder.append("(");
+			if (parentAtLast && !childLabels.isEmpty()) {
+				// Format: (fusedRing1, fusedRing2, ..., parent)
+				boolean first = true;
+				for (String childLabel : childLabels) {
+					if (!first) {
+						originalLabelsBuilder.append(", ");
+					}
+					originalLabelsBuilder.append(childLabel);
+					first = false;
+				}
+				originalLabelsBuilder.append(", ").append(parentLabel);
+			} else {
+				// Format: (parent, fusedRing1, fusedRing2, ...) or (parent) if no children
+				originalLabelsBuilder.append(parentLabel);
+				for (String childLabel : childLabels) {
+					originalLabelsBuilder.append(", ").append(childLabel);
+				}
 			}
 			originalLabelsBuilder.append(")");
 		}
