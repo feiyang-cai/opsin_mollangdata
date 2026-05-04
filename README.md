@@ -3,15 +3,13 @@
 OPSIN - Open Parser for Systematic IUPAC Nomenclature
 =====================================================
 
-__Anonymous review snapshot of a customized OPSIN fork.__  
-__Anonymous repository link: to be added later.__  
 __License: [MIT License](https://opensource.org/licenses/MIT)__  
 
 This repository is a customized OPSIN fork used for anonymous review. 
 
 This repository is provided primarily as **code reference**. For the end-to-end MolLangData data-generation workflow and instructions on how this fork is used, please refer to the companion MolLangData link:
 
-<https://huggingface.co/datasets/mollangdata/MolLangData>
+<https://anonymous.4open.science/r/MolLangData>
 
 OPSIN is a Java library for IUPAC name-to-structure conversion supporting SMILES, CML, and InChI-related workflows.
 
