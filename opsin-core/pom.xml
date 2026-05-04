@@ -1,0 +1,168 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+    <parent>
+      <artifactId>opsin</artifactId>
+      <groupId>uk.ac.cam.ch.opsin</groupId>
+      <version>3.0-SNAPSHOT</version>
+    </parent>
+  <artifactId>opsin-core</artifactId>
+  <name>OPSIN Core</name>
+  <description>Core files of OPSIN. Allows conversion of chemical names to CML (Chemical Markup Language)</description>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <!-- outputFile avoids installing needless uber jar: "The created archive will neither replace the project's main artifact nor will it be attached"-->
+              <outputFile>target/opsin-core-${project.version}-jar-with-dependencies.jar</outputFile>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/*.props</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>**/*.props</exclude>
+        </excludes>
+      </resource>
+    </resources>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>dk.brics</groupId>
+      <artifactId>automaton</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.woodstox</groupId>
+      <artifactId>woodstox-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <scope>test</scope>
+      </dependency>
+    </dependencies>
+  <profiles>
+    <profile>
+      <!-- Default profile: Include MolLangData classes -->
+      <id>mollangdata</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>3.2.4</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>shade</goal>
+                </goals>
+                <configuration>
+                  <!-- Customize uber JAR name with both OPSIN version and MolLangData version -->
+                  <!-- Format: opsin-core-{opsin-version-number}-mollangdata-{mollangdata-version-number}-SNAPSHOT-jar-with-dependencies.jar -->
+                  <!-- Single SNAPSHOT suffix at the end -->
+                  <outputFile>target/${project.artifactId}-${opsin.version.number}-mollangdata-${mollangdata.version.number}-SNAPSHOT-jar-with-dependencies.jar</outputFile>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <!-- Original OPSIN profile: Exclude MolLangData classes -->
+      <id>original</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>hide-mollangdata-classes</id>
+                <phase>process-sources</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <!-- Temporarily move MolLangData classes out of the way -->
+                    <move todir="${project.build.directory}/mollangdata-classes-backup">
+                      <fileset dir="${project.build.sourceDirectory}/uk/ac/cam/ch/wwmm/opsin">
+                        <include name="ProcessIupacBatchForMolLangData.java"/>
+                        <include name="ProcessSingleIupacForMolLangData.java"/>
+                      </fileset>
+                    </move>
+                  </target>
+                </configuration>
+              </execution>
+              <execution>
+                <id>restore-mollangdata-classes</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <!-- Restore MolLangData classes after compilation -->
+                    <move todir="${project.build.sourceDirectory}/uk/ac/cam/ch/wwmm/opsin" failonerror="false">
+                      <fileset dir="${project.build.directory}/mollangdata-classes-backup">
+                        <include name="*.java"/>
+                      </fileset>
+                    </move>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

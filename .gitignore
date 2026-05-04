@@ -1,0 +1,6 @@
+target/
+opsin-cli/src/main/java/dl/
+.classpath
+.project
+.settings
+test_outputs/
